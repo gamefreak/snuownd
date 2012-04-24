@@ -18,8 +18,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-(function(window){
-	var SnuOwnd = {};
+var SnuOwnd = {};
+(function(){
 	function _isspace(c) {return c == ' ' || c == '\n';}
 	function isspace(c) {return /\s/.test(c);}
 	function isalnum(c) { return /[A-Za-z0-9]/.test(c); }
@@ -2956,7 +2956,7 @@
 
 		return out.s;
 	}
-	Markdown.prototype.render = render;
+	Markdown.prototype['render'] = render;
 
 	function getParser(callbacks, extensions, nestingLimit, context) {
 		var md = new Markdown();
@@ -2992,34 +2992,30 @@
 	}
 
 	//Exports
-	SnuOwnd.defaultCallbacks = defaultCallbacks;
-	SnuOwnd.getParser = getParser;
-//	SnuOwnd.Buffer = Buffer;
+	SnuOwnd['defaultCallbacks'] = defaultCallbacks;
+	SnuOwnd['getParser'] = getParser;
 
+	SnuOwnd['HTML_SKIP_HTML'] = HTML_SKIP_HTML;
+	SnuOwnd['HTML_SKIP_STYLE'] = HTML_SKIP_STYLE;
+	SnuOwnd['HTML_SKIP_IMAGES'] = HTML_SKIP_IMAGES;
+	SnuOwnd['HTML_SKIP_LINKS'] = HTML_SKIP_LINKS;
+	SnuOwnd['HTML_EXPAND_TABS'] = HTML_EXPAND_TABS;
+	SnuOwnd['HTML_SAFELINK'] = HTML_SAFELINK;
+	SnuOwnd['HTML_TOC'] = HTML_TOC;
+	SnuOwnd['HTML_HARD_WRAP'] = HTML_HARD_WRAP;
+	SnuOwnd['HTML_USE_XHTML'] = HTML_USE_XHTML;
+	SnuOwnd['HTML_ESCAPE'] = HTML_ESCAPE;
 
-	SnuOwnd.HTML_SKIP_HTML = HTML_SKIP_HTML;
-	SnuOwnd.HTML_SKIP_STYLE = HTML_SKIP_STYLE;
-	SnuOwnd.HTML_SKIP_IMAGES = HTML_SKIP_IMAGES;
-	SnuOwnd.HTML_SKIP_LINKS = HTML_SKIP_LINKS;
-	SnuOwnd.HTML_EXPAND_TABS = HTML_EXPAND_TABS;
-	SnuOwnd.HTML_SAFELINK = HTML_SAFELINK;
-	SnuOwnd.HTML_TOC = HTML_TOC;
-	SnuOwnd.HTML_HARD_WRAP = HTML_HARD_WRAP;
-	SnuOwnd.HTML_USE_XHTML = HTML_USE_XHTML;
-	SnuOwnd.HTML_ESCAPE = HTML_ESCAPE;
+	SnuOwnd['MKDEXT_NO_INTRA_EMPHASIS'] = MKDEXT_NO_INTRA_EMPHASIS;
+	SnuOwnd['MKDEXT_TABLES'] = MKDEXT_TABLES;
+	SnuOwnd['MKDEXT_FENCED_CODE'] = MKDEXT_FENCED_CODE;
+	SnuOwnd['MKDEXT_AUTOLINK'] = MKDEXT_AUTOLINK;
+	SnuOwnd['MKDEXT_STRIKETHROUGH'] = MKDEXT_STRIKETHROUGH;
+	SnuOwnd['MKDEXT_LAX_HTML_BLOCKS'] = MKDEXT_LAX_HTML_BLOCKS;
+	SnuOwnd['MKDEXT_SPACE_HEADERS'] = MKDEXT_SPACE_HEADERS;
+	SnuOwnd['MKDEXT_SUPERSCRIPT'] = MKDEXT_SUPERSCRIPT;
 
-	SnuOwnd.MKDEXT_NO_INTRA_EMPHASIS = MKDEXT_NO_INTRA_EMPHASIS;
-	SnuOwnd.MKDEXT_TABLES = MKDEXT_TABLES;
-	SnuOwnd.MKDEXT_FENCED_CODE = MKDEXT_FENCED_CODE;
-	SnuOwnd.MKDEXT_AUTOLINK = MKDEXT_AUTOLINK;
-	SnuOwnd.MKDEXT_STRIKETHROUGH = MKDEXT_STRIKETHROUGH;
-	SnuOwnd.MKDEXT_LAX_HTML_BLOCKS = MKDEXT_LAX_HTML_BLOCKS;
-	SnuOwnd.MKDEXT_SPACE_HEADERS = MKDEXT_SPACE_HEADERS;
-	SnuOwnd.MKDEXT_SUPERSCRIPT = MKDEXT_SUPERSCRIPT;
-
-	SnuOwnd.MKDA_NOT_AUTOLINK = MKDA_NOT_AUTOLINK;
-	SnuOwnd.MKDA_NORMAL = MKDA_NORMAL;
-	SnuOwnd.MKDA_EMAIL = MKDA_EMAIL;
-	window['SnuOwnd'] = SnuOwnd;
-
-})(window);
+//	SnuOwnd['MKDA_NOT_AUTOLINK'] = MKDA_NOT_AUTOLINK;
+//	SnuOwnd['MKDA_NORMAL'] = MKDA_NORMAL;
+//	SnuOwnd['MKDA_EMAIL'] = MKDA_EMAIL;
+})();
