@@ -288,7 +288,7 @@
 			if (copen != 0) {
 				var closing = 0;
 				var opening = 0;
-				var i = 0;
+				var j = 0;
 
 				/* Try to close the final punctuation sign in this same line;
 				 * if we managed to close it outside of the URL, that means that it's
@@ -310,11 +310,11 @@
 				 *		=> foo http://www.pokemon.com/Pikachu_(Electric)
 				 */
 
-				while (i < link_end) {
-					if (data[i] == copen) opening++;
-					else if (data[i] == cclose) closing++;
+				while (j < link_end) {
+					if (data[j] == copen) opening++;
+					else if (data[j] == cclose) closing++;
 
-					i++;
+					j++;
 				}
 
 				if (closing != opening) link_end--;
@@ -971,11 +971,10 @@
 			return 0;
 
 		/* removing the last space from ob and rendering */
-//		while (ob->size && ob->data[ob->size - 1] == ' ') ob->size--;
 		out.s = out.s.trimRight();
 
-	return md.callbacks.linebreak(out, md.context) ? 1 : 0;
-}
+		return md.callbacks.linebreak(out, md.context) ? 1 : 0;
+	}
 
 	/* char_link - '[': parsing a link or an image */
 	function char_link(out, md, data_, offset) {
@@ -993,8 +992,6 @@
 
 		function cleanup() {
 			md.spanStack.length = org_work_size;
-			//TODO
-			console.log('return', ret, i);
 			return ret ? i : 0;
 		}
 
@@ -1095,7 +1092,6 @@
 		/* reference style link */
 		else if (i < data.length && data[i] == '[') {
 			var id = new Buffer();
-//			struct link_ref *lr;
 			var lr = null;
 
 			/* looking for the id */
@@ -2269,12 +2265,6 @@
 			beg = end;
 		}
 
-		if (work_data.length != work_size) {
-			console.log('false');
-			console.log(work_data);
-			console.log(work_data.length, work_size);
-		}
-//		parse_block(out_, rndr, work_data, work_size);
 		parse_block(out_, md, work_data);
 		if (md.callbacks.blockquote)
 			md.callbacks.blockquote(out, out_, md.context);
@@ -3030,12 +3020,6 @@
 	SnuOwnd.MKDA_NOT_AUTOLINK = MKDA_NOT_AUTOLINK;
 	SnuOwnd.MKDA_NORMAL = MKDA_NORMAL;
 	SnuOwnd.MKDA_EMAIL = MKDA_EMAIL;
-//	window['SnuOwnd'] = {};
-//	for (var key in SnuOwnd) {
-//		window['SnuOwnd'][key] = SnuOwnd[key];
-//	}
 	window['SnuOwnd'] = SnuOwnd;
 
 })(window);
-//SnuOwnd.getParser;
-//SnuOwnd.render;
