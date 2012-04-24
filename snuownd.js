@@ -1,7 +1,9 @@
-/* snuownd.js - javascript port of reddit's "snudown" markdown parser */
-
-/*
- * Copyright (c) 2009, Natacha Porté
+/**
+ @preserve snuownd.js - javascript port of reddit's "snudown" markdown parser
+ https://github.com/gamefreak/snuownd
+ */
+/**
+ * @license Copyright (c) 2009, Natacha Porté
  * Copyright (c) 2011, Vicent Marti
  * Copyright (c) 2012, Scott McClaugherty
  *
