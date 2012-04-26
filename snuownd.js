@@ -449,6 +449,7 @@ var SnuOwnd = {};
 
 
 	function sd_autolink__email(rewind_p, link, data_, offset, size) {
+		var data = data_.slice(offset);
 		var link_end, rewind;
 		var nb = 0, np = 0;
 
@@ -462,7 +463,7 @@ var SnuOwnd = {};
 		if (rewind == 0) return 0;
 
 		for (link_end = 0; link_end < size; ++link_end) {
-			var c = data_[offsest+link_end];
+			var c = data_[offset+link_end];
 
 			if (isalnum(c)) continue;
 
@@ -507,7 +508,7 @@ var SnuOwnd = {};
 		if (link_end == 0) return 0;
 
 		link.s += data.slice(0, link_end);
-		rewind.p = 0;
+		rewind_p.p = 0;
 
 		return link_end;
 	}
@@ -1294,7 +1295,7 @@ var SnuOwnd = {};
 		//TODO
 //		if ((link_len = sd_autolink__url(&rewind, link, data, offset, size)) > 0) {
 		if ((link_len = sd_autolink__url(rewind, link, data_, offset, data.length)) > 0) {
-			out.s = out.s.slice(0, -rewind.p);
+			if (rewind.p > 0) out.s = out.s.slice(0, -rewind.p);
 			md.callbacks.autolink(out, link, MKDA_NORMAL, md.context);
 		}
 
@@ -1314,7 +1315,7 @@ var SnuOwnd = {};
 		md.spanStack.push(link);
 
 		if ((link_len = sd_autolink__email(rewind, link, data_, offset, data.length)) > 0) {
-			out.s = out.s.slice(0, -rewind.p);
+			if (rewind.p > 0) out.s = out.s.slice(0, -rewind.p);
 			md.callbacks.autolink(out, link, MKDA_EMAIL, md.context);
 		}
 
@@ -1326,7 +1327,7 @@ var SnuOwnd = {};
 	function char_autolink_www(out, md, data_, offset) {
 		var data = data_.slice(offset);
 		var link = null, link_url = null, link_text = null;
-		var link_len, rewind = {p: 0};
+		var link_len, rewind = {p: null};
 
 		if (!md.callbacks.link || md.inLinkBody) return 0;
 
@@ -1339,7 +1340,7 @@ var SnuOwnd = {};
 			link_url.s += 'http://';
 			link_url.s += link.s;
 
-			out.s = out.s.slice(0, -rewind.p);
+			if (rewind.p > 0) out.s = out.s.slice(0, out.s.length-rewind.p);
 			if (md.callbacks.normal_text) {
 				link_text = new Buffer();
 				md.spanStack.push(link_text);
@@ -1367,11 +1368,11 @@ var SnuOwnd = {};
 		md.spanStack.push(link);
 		if ((link_len = sd_autolink__subreddit(rewind, link, data_, offset, data.length)) > 0) {
 			//don't slice because the rewind pointer will always be 0
-//			out.s = out.s.slice(0, -rewind.p);
+			if (rewind.p > 0) out.s = out.s.slice(0, -rewind.p);
 			md.callbacks.autolink(out, link, MKDA_NORMAL, md.context);
 		} else if ((link_len = sd_autolink__username(rewind, link, data_, offset, data.length)) > 0) {
 			//don't slice because the rewind pointer will always be 0
-//			out.s = out.s.slice(0, -rewind.p);
+			if (rewind.p > 0) out.s = out.s.slice(0, -rewind.p);
 			md.callbacks.autolink(out, link, MKDA_NORMAL, md.context);
 		}
 		md.spanStack.pop();
