@@ -124,7 +124,7 @@ var SnuOwnd = {};
 		var i = 0, org, esc = 0;
 		while (i < src.length) {
 			org = i;
-			while (i < src.length && (esc = HTML_ESCAPE_TABLE[src.charCodeAt(i)]) == 0)
+			while (i < src.length && !(esc = HTML_ESCAPE_TABLE[src.charCodeAt(i)]))
 				i++;
 
 			if (i > org) out.s += src.slice(org, i);
@@ -1509,10 +1509,6 @@ var SnuOwnd = {};
 		this.context = getDefaultRenderOptions();
 		this.inLinkBody = 0;
 		this.activeChars = {};
-		for (var i = 0; i < 256; i++) {
-//			this.activeChars[i] = 0;
-			this.activeChars[String.fromCharCode(i)] = 0;
-		}
 		this.refs = {};
 	};
 	Markdown.prototype.callbacks = defaultCallbacks;
@@ -2035,7 +2031,7 @@ var SnuOwnd = {};
 
 		while (i < data.length) {
 			/* copying inactive chars into the output */
-			while (end < data.length && (action = md.activeChars[data[end]]) == 0) {
+			while (end < data.length && !(action = md.activeChars[data[end]])) {
 				end++;
 			}
 
