@@ -830,7 +830,7 @@ var SnuOwnd = {};
 	},
 
 //	int (*raw_html_tag)(struct buf *ob, const struct buf *tag, void *opaque);
-	raw_html_tag: function raw_html_tag(out, tag, options) {
+	raw_html_tag: function raw_html_tag(out, text, options) {
 		/* HTML_ESCAPE overrides SKIP_HTML, SKIP_STYLE, SKIP_LINKS and SKIP_IMAGES
 		 * It doens't see if there are any valid tags, just escape all of them. */
 		if((options.flags & HTML_ESCAPE) != 0) {
