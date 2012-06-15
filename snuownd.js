@@ -370,7 +370,7 @@ var SnuOwnd = {};
 
 		while (rewind < offset && isalpha(data_[offset-rewind - 1])) rewind++;
 
-		if (!sd_autolink_issafe(data_.slice(offset-rewind, size+rewind))) return 0;
+		if (!sd_autolink_issafe(data_.substr(offset-rewind, size+rewind))) return 0;
 		link_end = "://".length;
 
 		domain_len = check_domain(data.slice(link_end));
@@ -384,7 +384,6 @@ var SnuOwnd = {};
 		if (link_end == 0) return 0;
 
 		//TODO
-//		link.s += data_.slice(offset-rewind, link_end+rewind);
 		link.s += data_.substr(offset-rewind, link_end+rewind);
 		rewind_p.p = rewind;
 
@@ -1292,8 +1291,6 @@ var SnuOwnd = {};
 		link = new Buffer();
 		md.spanStack.push(link);
 
-		//TODO
-//		if ((link_len = sd_autolink__url(&rewind, link, data, offset, size)) > 0) {
 		if ((link_len = sd_autolink__url(rewind, link, data_, offset, data.length)) > 0) {
 			if (rewind.p > 0) out.s = out.s.slice(0, -rewind.p);
 			md.callbacks.autolink(out, link, MKDA_NORMAL, md.context);
