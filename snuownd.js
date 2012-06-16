@@ -567,6 +567,37 @@ var SnuOwnd = {};
 		};
 	}
 
+	function getTocCallbacks() {
+		return {
+			blockcode: null,
+			blockquote: null,
+			blockhtml: null,
+			header: cb_toc_header,
+			hrule: null,
+			list: null,
+			listitem: null,
+			paragraph: null,
+			table: null,
+			table_row: null,
+			table_cell: null,
+			autolink: null,
+			codespan: cb_codespan,
+			double_emphasis: cb_double_emphasis,
+			emphasis: cb_emphasis,
+			image: null,
+			linebreak: null,
+			link: cb_toc_link,
+			raw_html_tag: null,
+			triple_emphasis: cb_triple_emphasis,
+			strikethrough: cb_strikethrough,
+			superscript: cb_superscript,
+			entity: null,
+			normal_text: null,
+			doc_header: null,
+			doc_footer: cb_toc_finalize
+		};
+	}
+
 	/* block level callbacks - NULL skips the block */
 //	void (*blockcode)(struct buf *ob, const struct buf *text, const struct buf *lang, void *opaque);
 	function cb_blockcode(out, text, lang, options) {
@@ -916,6 +947,45 @@ var SnuOwnd = {};
 	function cb_normal_text(out, text, options) {
 		if (text) escape_html(out, text.s, false);
 	}
+
+//toc_header(struct buf *ob, const struct buf *text, int level, void *opaque)
+	function cb_toc_header(out, text, level, options) {
+		if (level > options.tocData.currentLevel) {
+			while (level > options.tocData.currentLevel) {
+				out.s += '<ul>\n<li>\n';
+				options.tocData.currentLevel++;
+			}
+		} else if (level < options.tocData.currentLevel) {
+			out.s += '</li>\n';
+			while (level < options.tocData.currentLevel) {
+				out.s += '</ul\n</li>\n';
+				options.tocData.current_level--;
+			}
+			out.s += '<li>\n';
+		} else {
+			out.s += '</li>\n<li>\n';
+		}
+
+		out.s += '<a href="#toc_' + options.tocData.headerCount++ + '">';
+		if (text) escape_html(out, text.s, false);
+		out.s += '</a>\n';
+	}
+
+//toc_link(struct buf *ob, const struct buf *link, const struct buf *title, const struct buf *content, void *opaque)
+	function cb_toc_link(out, link, title, content, options) {
+		if (content && content.s) 
+			out.s += content.s;
+		return 1;
+	}
+
+//toc_finalize(struct buf *ob, void *opaque)
+	function cb_toc_finalize(out, options) {
+		while (options.tocData.currentLevel > 0) {
+			out.s += '</li>\n</ul>\n';
+			options.tocData.currentLevel--;
+		}
+	}
+
 
 	/* header and footer */
 // doc_header(Buffer out}, context);
@@ -3020,6 +3090,7 @@ var SnuOwnd = {};
 
 	//Exports
 	SnuOwnd['getDefaultCallbacks'] = getDefaultCallbacks;
+	SnuOwnd['getTocCallbacks'] = getTocCallbacks;
 	SnuOwnd['getParser'] = getParser;
 
 	SnuOwnd['HTML_SKIP_HTML'] = HTML_SKIP_HTML;
