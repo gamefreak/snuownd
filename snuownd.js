@@ -2386,6 +2386,8 @@ var SnuOwnd = {};
 
 			var tempdata = data.slice(i);
 			if (is_empty(tempdata) || (level = is_headerline(tempdata)) != 0) break;
+			if (is_empty(tempdata)) break;
+			if ((level = is_headerline(tempdata)) != 0) break;
 
 			if (md.extensions & MKDEXT_LAX_HTML_BLOCKS) {
 				if (data[i] == '<' && md.callbacks.blockhtml && parse_htmlblock(out, md, tempdata, null)) {
@@ -2394,7 +2396,9 @@ var SnuOwnd = {};
 				}
 			}
 
-			if (is_atxheader(md, tempdata) || is_hrule(tempdata)) {
+			if (is_atxheader(md, tempdata)
+			|| is_hrule(tempdata)
+			|| prefix_quote(tempdata)) {
 				end = i;
 				break;
 			}
