@@ -519,7 +519,8 @@ var SnuOwnd = {};
 //			html: {
 				tocData: {
 					headerCount: 0,
-					currentLevel: 0
+					currentLevel: 0,
+					levelOffest: 0
 				},
 				flags: HTML_SKIP_HTML | HTML_SKIP_IMAGES | HTML_SAFELINK | HTML_ESCAPE | HTML_USE_XHTML,
 				/* extra callbacks */
@@ -950,6 +951,13 @@ var SnuOwnd = {};
 
 //toc_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 	function cb_toc_header(out, text, level, options) {
+		/* set the level offset if this is the first header
+		 * we're parsing for the document */
+		if (options.tocData.currentLevel== 0) {
+			options.tocdata.levelOffset = level - 1;
+		}
+		level -= options.tocData.levelOffset;
+
 		if (level > options.tocData.currentLevel) {
 			while (level > options.tocData.currentLevel) {
 				out.s += '<ul>\n<li>\n';
