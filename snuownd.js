@@ -535,89 +535,120 @@ var SnuOwnd = {};
 //			}
 		};
 	}
-	var defaultCallbacks = {
+
+	function getDefaultCallbacks() {
+		return {
+			blockcode: cb_blockcode,
+			blockquote: cb_blockquote,
+			blockhtml: cb_blockhtml,
+			header: cb_header,
+			hrule: cb_hrule,
+			list: cb_list,
+			listitem: cb_listitem,
+			paragraph: cb_paragraph,
+			table: cb_table,
+			table_row: cb_table_row,
+			table_cell: cb_table_cell,
+			autolink: cb_autolink,
+			codespan: cb_codespan,
+			double_emphasis: cb_double_emphasis,
+			emphasis: cb_emphasis,
+			image: cb_image,
+			linebreak: cb_linebreak,
+			link: cb_link,
+			raw_html_tag: cb_raw_html_tag,
+			triple_emphasis: cb_triple_emphasis,
+			strikethrough: cb_strikethrough,
+			superscript: cb_superscript,
+			entity: null,
+			normal_text: cb_normal_text,
+			doc_header: null,
+			doc_footer: null
+		};
+	}
+
 	/* block level callbacks - NULL skips the block */
 //	void (*blockcode)(struct buf *ob, const struct buf *text, const struct buf *lang, void *opaque);
-		blockcode: function blockcode(out, text, lang, options) {
-			if (out.s.length) out.s += '\n';
+	function cb_blockcode(out, text, lang, options) {
+		if (out.s.length) out.s += '\n';
 
-			if (lang && lang.s.length) {
-				var i, cls;
-				out.s += '<pre><code class="';
+		if (lang && lang.s.length) {
+			var i, cls;
+			out.s += '<pre><code class="';
 
-				for (i = 0, cls = 0; i < lang.s.length; ++i, ++cls) {
-					while (i < lang.s.length && isspace(lang.s[i]))
-						i++;
+			for (i = 0, cls = 0; i < lang.s.length; ++i, ++cls) {
+				while (i < lang.s.length && isspace(lang.s[i]))
+					i++;
 
-					if (i < lang.s.length) {
-						var org = i;
-						while (i < lang.s.length && !isspace(lang.s[i])) i++;
+				if (i < lang.s.length) {
+					var org = i;
+					while (i < lang.s.length && !isspace(lang.s[i])) i++;
 
-						if (lang.s[org] == '.') org++;
+					if (lang.s[org] == '.') org++;
 
-						if (cls) out.s += ' ';
-						escape_html(out, lang.s.slice(org, i), false);
-					}
+					if (cls) out.s += ' ';
+					escape_html(out, lang.s.slice(org, i), false);
 				}
+			}
 
-				out.s += '">';
-			} else
-				out.s += '<pre><code>';
+			out.s += '">';
+		} else
+			out.s += '<pre><code>';
 
-			if (text) escape_html(out, text.s, false);
+		if (text) escape_html(out, text.s, false);
 
-			out.s += '</code></pre>\n';
-		},
+		out.s += '</code></pre>\n';
+	}
 //	void (*blockquote)(struct buf *ob, const struct buf *text, void *opaque);
-	   blockquote: function blockquote(out, text, lang, options) {
-		   if (out.s.length) out.s += '\n';
-		   out.s += '<blockquote>\n';
-		   if (text) out.s += text.s;
-		   out.s += '</blockquote>\n';
-	   },
+	function cb_blockquote(out, text, lang, options) {
+		if (out.s.length) out.s += '\n';
+		out.s += '<blockquote>\n';
+		if (text) out.s += text.s;
+		out.s += '</blockquote>\n';
+	}
 //	void (*blockhtml)(struct buf *ob,const  struct buf *text, void *opaque);
-	   blockhtml: function blockhtml(out, text, options) {
-		   var org, sz;
-		   if (!text) return;
-		   sz = text.s.length;
-		   while (sz > 0 && text.s[sz - 1] == '\n') sz--;
-		   org = 0;
-		   while (org < sz && text.s[org] == '\n') org++;
-		   if (org >= sz) return;
-		   if (out.s.length) out.s += '\n';
-		   out.s += text.s.slice(org, sz);
-		   out.s += '\n';
-	   },
+	function cb_blockhtml(out, text, options) {
+		var org, sz;
+		if (!text) return;
+		sz = text.s.length;
+		while (sz > 0 && text.s[sz - 1] == '\n') sz--;
+		org = 0;
+		while (org < sz && text.s[org] == '\n') org++;
+		if (org >= sz) return;
+		if (out.s.length) out.s += '\n';
+		out.s += text.s.slice(org, sz);
+		out.s += '\n';
+	}
 
 //	header(Buffer out, Buffer text, int level, void *opaque);
-		header: function header(out, text, level, options) {
-			if (out.s.length) out.s += '\n';
-			if (options.flags & HTML_TOC)
-				out.s += '<h' + (+level) + 'id="toc_' + (options.tocData.headerCount++) + '">';
-			else
-				out.s += '<h' + (+level) + '>';
+	function cb_header(out, text, level, options) {
+		if (out.s.length) out.s += '\n';
+		if (options.flags & HTML_TOC)
+			out.s += '<h' + (+level) + 'id="toc_' + (options.tocData.headerCount++) + '">';
+		else
+			out.s += '<h' + (+level) + '>';
 
-			if (text) out.s += text.s;
-			out.s += '</h' + (+level) + '>\n';
-		},
+		if (text) out.s += text.s;
+		out.s += '</h' + (+level) + '>\n';
+	}
 
 //	void (*hrule)(struct buf *ob, void *opaque);
-	hrule: function hrule(out, options) {
+	function cb_hrule(out, options) {
 		if (out.s.length) out.s += '\n';
 		out.s += (options.flags & HTML_USE_XHTML) ? '<hr/>\n' : '<hr>\n';
-	},
+	}
 
 //	void (*list)(struct buf *ob, const struct buf *text, int flags, void *opaque);
-	list: function list(out, text, flags, options) {
+	function cb_list(out, text, flags, options) {
 		if (out.s.length) out.s += '\n';
 		out.s += (flags&MKD_LIST_ORDERED?'<ol>\n':'<ul>\n');
 		if (text) out.s += text.s;
 		out.s += (flags&MKD_LIST_ORDERED?'</ol>\n':'</ul>\n');
-	},
+	}
 
 //	void (*listitem)(struct buf *ob, const struct buf *text, int flags, void *opaque);
 
-	listitem: function listitem(out, text, flags, options) {
+	function cb_listitem(out, text, flags, options) {
 		out.s += '<li>';
 		if (text) {
 			var size = text.s.length;
@@ -625,10 +656,10 @@ var SnuOwnd = {};
 			out.s += text.s.slice(0, size);
 		}
 		out.s += '</li>\n';
-	},
+	}
 
 //	void (*paragraph)(struct buf *ob, const struct buf *text, void *opaque);
-	paragraph: function paragraph(out, text, options) {
+	function cb_paragraph(out, text, options) {
 		var i = 0;
 
 		if (out.s.length) out.s += '\n';
@@ -662,27 +693,27 @@ var SnuOwnd = {};
 			out.s += text.s.slice(i);
 		}
 		out.s += '</p>\n';
-	},
+	}
 
 //	void (*table)(struct buf *ob, const struct buf *header, const struct buf *body, void *opaque);
-	table: function table(out, header, body, options) {
+	function cb_table(out, header, body, options) {
 		if (out.s.length) out.s += '\n';
 		out.s += '<table><thead>\n';
 		if (header) out.s += header.s;
 		out.s += '</thead><tbody>\n';
 		if (body) out.s += body.s;
 		out.s += '</tbody></table>\n';
-	},
+	}
 
 //	void (*table_row)(struct buf *ob, const struct buf *text, void *opaque);
-	table_row: function table_row(out, text, options) {
+	function cb_table_row(out, text, options) {
 		out.s += '<tr>\n';
 		if (text) out.s += text.s;
 		out.s += '</tr>\n';
-	},
+	}
 
 //	void (*table_cell)(struct buf *ob, const struct buf *text, int flags, void *opaque);
-	table_cell: function table_cell(out, text, flags, options) {
+	function cb_table_cell(out, text, flags, options) {
 		if (flags & MKD_TABLE_HEADER) {
 			out.s += '<th';
 		} else {
@@ -712,11 +743,11 @@ var SnuOwnd = {};
 		} else {
 			out.s += '</td>\n';
 		}
-	},
+	}
 
 	/* span level callbacks - NULL or return 0 prints the span verbatim */
 //	int (*autolink)(struct buf *ob, const struct buf *link, enum mkd_autolink type, void *opaque);
-	autolink: function autolink(out, link, type, options) {
+	function cb_autolink(out, link, type, options) {
 		var offset = 0;
 
 		if (!link || !link.s.length) return 0;
@@ -751,33 +782,33 @@ var SnuOwnd = {};
 		out.s += '</a>';
 
 		return 1;
-	},
+	}
 
 
 //	int (*codespan)(struct buf *ob, const struct buf *text, void *opaque);
-	codespan: function codespan(out, text, options) {
+	function cb_codespan(out, text, options) {
 		out.s += '<code>';
 		if (text) escape_html(out, text.s, false);
 		out.s += '</code>';
 		return 1;
-	},
+	}
 
 //	int (*double_emphasis)(struct buf *ob, const struct buf *text, void *opaque);
-	double_emphasis: function double_emphasis(out, text, options) {
+	function cb_double_emphasis(out, text, options) {
 		if (!text || !text.s.length) return 0;
 		out.s += '<strong>' + text.s + '</strong>';
 		return 1;
-	},
+	}
 
 //	int (*emphasis)(struct buf *ob, const struct buf *text, void *opaque);
-	emphasis: function emphasis(out, text, options) {
+	function cb_emphasis(out, text, options) {
 		if (!text || !text.s.length) return 0;
 		out.s += '<em>' + text.s + '</em>';
 		return 1;
-	},		
+	}
 
 //	int (*image)(struct buf *ob, const struct buf *link, const struct buf *title, const struct buf *alt, void *opaque);
-	image: function image(out, link, title, alt, options) {
+	function cb_image(out, link, title, alt, options) {
 		if (!link || !link.s.length) return 0;
 
 		out.s += '<img src="';
@@ -793,17 +824,17 @@ var SnuOwnd = {};
 
 		out.s += (options.flags&HTML_USE_XHTML?'"/>':'">');
 		return 1;
-	},
+	}
 
 
 //	int (*linebreak)(struct buf *ob, void *opaque);
-	linebreak: function linebreak(out, options) {
+	function cb_linebreak(out, options) {
 		out.s += (options.flags&HTML_USE_XHTML?'<br/>\n':'<br>\n');
 		return 1;
-	},
+	}
 
 //	int (*link)(struct buf *ob, const struct buf *link, const struct buf *title, const struct buf *content, void *opaque);
-	link: function link(out, link, title, content, options) {
+	function cb_link(out, link, title, content, options) {
 		if (link != null && (options.flags & HTML_SAFELINK) != 0 && !sd_autolink_issafe(link.s)) return 0;
 
 		out.s += '<a href="';
@@ -826,10 +857,10 @@ var SnuOwnd = {};
 		if (content && content.s.length) out.s += content.s;
 		out.s += '</a>';
 		return 1;
-	},
+	}
 
 //	int (*raw_html_tag)(struct buf *ob, const struct buf *tag, void *opaque);
-	raw_html_tag: function raw_html_tag(out, text, options) {
+	function cb_raw_html_tag(out, text, options) {
 		/* HTML_ESCAPE overrides SKIP_HTML, SKIP_STYLE, SKIP_LINKS and SKIP_IMAGES
 		 * It doens't see if there are any valid tags, just escape all of them. */
 		if((options.flags & HTML_ESCAPE) != 0) {
@@ -853,44 +884,44 @@ var SnuOwnd = {};
 
 		out.s += text.s;
 		return 1;
-	},
+	}
 
 //	int (*triple_emphasis)(struct buf *ob, const struct buf *text, void *opaque);
-	triple_emphasis: function triple_emphasis(out, text, options) {
+	function cb_triple_emphasis(out, text, options) {
 		if (!text || !text.s.length) return 0;
 		out.s += '<strong><em>' + text.s + '</em></strong>';
 		return 1;
-	},
+	}
 
 //	int (*strikethrough)(struct buf *ob, const struct buf *text, void *opaque);
-	strikethrough: function strikethrough(out, text, options) {
+	function cb_strikethrough(out, text, options) {
 		if (!text || !text.s.length) return 0;
 		out.s += '<del>' + text.s + '</del>';
 		return 1;
-	},
+	}
 
 //	int (*superscript)(struct buf *ob, const struct buf *text, void *opaque);
-	superscript: function superscript(out, text, options) {
+	function cb_superscript(out, text, options) {
 		if (!text || !text.s.length) return 0;
 		out.s += '<sup>' + text.s + '</sup>';
 		return 1;
-	},
+	}
 
 	/* low level callbacks - NULL copies input directly into the output */
 //	void (*entity)(struct buf *ob, const struct buf *entity, void *opaque);
-	entity: null,
+	//TODO: WRITE
+//	entity: null,
 
 //	void (*normal_text)(struct buf *ob, const struct buf *text, void *opaque);
-	normal_text: function normal_text(out, text, options) {
+	function cb_normal_text(out, text, options) {
 		if (text) escape_html(out, text.s, false);
-	},
+	}
 
 	/* header and footer */
 // doc_header(Buffer out}, context);
-		doc_header: null,
+//		doc_header: null,
 //	doc_footer(Buffer out, context);
-		doc_footer: null
-	};
+//		doc_footer: null
 
 
 	/* char_emphasis • single and double emphasis parsing */
@@ -1508,7 +1539,7 @@ var SnuOwnd = {};
 		this.activeChars = {};
 		this.refs = {};
 	};
-	Markdown.prototype.callbacks = defaultCallbacks;
+	Markdown.prototype.callbacks = getDefaultCallbacks();
 	Markdown.prototype.nestingLimit = 16;
 
 
@@ -2988,7 +3019,7 @@ var SnuOwnd = {};
 	}
 
 	//Exports
-	SnuOwnd['defaultCallbacks'] = defaultCallbacks;
+	SnuOwnd['getDefaultCallbacks'] = getDefaultCallbacks;
 	SnuOwnd['getParser'] = getParser;
 
 	SnuOwnd['HTML_SKIP_HTML'] = HTML_SKIP_HTML;
