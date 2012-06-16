@@ -19,6 +19,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+// up to date with 0e1cb2b1570a975f16feff176f81766128d838e1
 
 var SnuOwnd = {};
 (function(){
@@ -2559,8 +2560,7 @@ var SnuOwnd = {};
 		var size = data.length;
 		var work = null, inter = null;
 		var beg = 0, end, pre, sublist = 0, orgpre = 0, i;
-		var in_empty = 0, has_inside_empty = 0;
-		var has_next_uli, has_next_oli;
+		var in_empty = 0, has_inside_empty = 0, in_fence = 0;
 
 		/* keeping track of the first indentation prefix */
 		while (orgpre < 3 && orgpre < size && data[orgpre] == ' ')
@@ -2586,6 +2586,7 @@ var SnuOwnd = {};
 
 		/* process the following lines */
 		while (beg < size) {
+			var has_next_uli, has_next_oli;
 			end++;
 
 			while (end < size && data[end - 1] != '\n') end++;
@@ -2603,8 +2604,18 @@ var SnuOwnd = {};
 
 			pre = i;
 
-			has_next_uli = prefix_uli(data.slice(beg+i, end));
-			has_next_oli = prefix_oli(data.slice(beg+i, end));
+			//TODO: Cache this slice?
+			if (md.flags & MKDEXT_FENCED_CODE) {
+				if (is_codefence(data.slice(beg+i, end), null) != 0) {
+					in_fence = !in_fence;
+				}
+			}
+
+			/* only check for new list items if we are **not** in a fenced code block */
+			if (!in_fence) {
+				has_next_uli = prefix_uli(data.slice(beg+i, end));
+				has_next_oli = prefix_oli(data.slice(beg+i, end));
+			}
 
 			/* checking for ul/ol switch */
 			if (in_empty && (
@@ -2623,8 +2634,10 @@ var SnuOwnd = {};
 
 				if (!sublist) sublist = work.s.length;
 			}
-			/* joining only indented stuff after empty lines */
-			else if (in_empty && i < 4) {
+			/* joining only indented stuff after empty lines;
+			 * note that now we only require 1 space of indentation
+			 * to continue list */
+			else if (in_empty && pre == 0) {
 				flags.p |= MKD_LI_END;
 				break;
 			}
