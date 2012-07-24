@@ -19,7 +19,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-// up to date with 0e1cb2b1570a975f16feff176f81766128d838e1
+// up to date with 2607a45c030608ddcd11dd6f3954768532d52fec
 
 var SnuOwnd = {};
 (function(){
@@ -1567,9 +1567,10 @@ var SnuOwnd = {};
 	var MKDEXT_FENCED_CODE = (1 << 2);
 	var MKDEXT_AUTOLINK = (1 << 3);
 	var MKDEXT_STRIKETHROUGH = (1 << 4);
-	var MKDEXT_LAX_HTML_BLOCKS = (1 << 5);
+//	var MKDEXT_LAX_HTML_BLOCKS = (1 << 5);
 	var MKDEXT_SPACE_HEADERS = (1 << 6);
 	var MKDEXT_SUPERSCRIPT = (1 << 7);
+	var MKDEXT_LAX_SPACING = (1 << 8)
 
 	var HTML_SKIP_HTML = (1 << 0);
 	var HTML_SKIP_STYLE = (1 << 1);
@@ -1662,8 +1663,9 @@ var SnuOwnd = {};
 	}
 
 
-	/* check if a line is a code fence; return its size if it is */
-	function is_codefence(data, syntax) {
+	/* check if a line begins with a code fence; return the
+	 * width if it is */
+	function prefix_codefence(data) {
 		var i = 0, n = 0;
 		var c;
 
@@ -1686,50 +1688,52 @@ var SnuOwnd = {};
 
 		if (n < 3) return 0;
 
-		if (syntax) {
-			var syn_cursor;
-			var syn = 0;
+		return i;
+	}
 
-			while (i < data.length && data[i] == ' ') i++;
+	/* check if a line is a code fence; return its size if it */
+	function is_codefence(data, syntax) {
+		var i = 0, syn_len = 0;
+		i = prefix_codefence(data);
+		if (i == 0) return 0;
 
-//			syntax->data = data + i;
-			syn_cursor = i;
 
-			if (i < size && data[i] == '{') {
-				i++;
-//				syntax->data++;
-				syn_cursor++;
+		while (i < data.length && data[i] == ' ') i++;
 
-				while (i < data.length && data[i] != '}' && data[i] != '\n') {
-					syn++;
-					i++;
-				}
+		var syn_start;
+		//syn_start = data + i;
+		syn_start = i;
 
-				if (i == size || data[i] != '}')
-					return 0;
+		if (i < size && data[i] == '{') {
+			i++; syn_start++;
 
-				/* strip all whitespace at the beginning and the end
-				 * of the {} block */
-				while (syn > 0 && _isspace(data[syn_cursor+0])) {
-//					syntax->data++;
-					syn_cursor++;
-					syn--;
-				}
-
-//				while (syn > 0 && _isspace(syntax->data[syn - 1]))
-				while (syn > 0 && _isspace(data[syn_cursor+syn - 1]))
-					syn--;
-
-				i++;
-			} else {
-				while (i < data.length && !_isspace(data[i])) {
-					syn++; i++;
-				}
+			while (i < data.length && data[i] != '}' && data[i] != '\n') {
+				syn_len++; i++;
 			}
 
-			syntax.s = data.substr(syn_cursor, syn);
-//			syntax->size = syn;
+			if (i == size || data[i] != '}')
+				return 0;
+
+			/* strip all whitespace at the beginning and the end
+			 * of the {} block */
+			/*remember not to remove the +0, it helps me keep syncronised with snudown*/
+			while (syn > 0 && _isspace(data[syn_cursor+0])) {
+				syn_start++; syn_len--;
+			}
+
+//			while (syn_len > 0 && _isspace(syn_start[syn_len - 1]))
+			while (syn_len > 0 && _isspace(data[syn_start+syn_len - 1]))
+				syn_len--;
+
+			i++;
+		} else {
+			while (i < data.length && !_isspace(data[i])) {
+				syn_len++; i++;
+			}
 		}
+
+		if (syntax) syntax.s = data.substr(syn_start, syn_length);
+//		syntax->size = syn;
 
 		while (i < data.length && data[i] != '\n') {
 			if (!_isspace(data[i])) return 0;
@@ -2215,13 +2219,7 @@ var SnuOwnd = {};
 		i += w;
 		w = 0;
 
-		if (md.extensions & MKDEXT_LAX_HTML_BLOCKS) {
-			if (i < data.length)
-				w = is_empty(data.slice(i));
-		} else  {
-			if (i < data.length && (w = is_empty(data.slice(i))) == 0)
-				return 0; /* non-blank line after tag line */
-		}
+		if (i < data.length) w = is_empty(data.slice(i));
 
 		return i + w;
 	}
@@ -2398,18 +2396,40 @@ var SnuOwnd = {};
 			if (is_empty(tempdata)) break;
 			if ((level = is_headerline(tempdata)) != 0) break;
 
-			if (md.extensions & MKDEXT_LAX_HTML_BLOCKS) {
-				if (data[i] == '<' && md.callbacks.blockhtml && parse_htmlblock(out, md, tempdata, null)) {
+			if (is_atxheader(md, tempdata)
+				|| is_hrule(tempdata)
+				|| prefix_quote(tempdata)) {
 					end = i;
 					break;
 				}
-			}
 
-			if (is_atxheader(md, tempdata)
-			|| is_hrule(tempdata)
-			|| prefix_quote(tempdata)) {
-				end = i;
-				break;
+			/*
+			 * Early termination of a paragraph with the same logic
+			 * as markdown 1.0.0. If this logic is applied, the
+			 * Markdown 1.0.3 test suite wont pass cleanly.
+			 *
+			 * :: If the first character in a new line is not a letter
+			 * lets check to see if there's some kind of block starting here
+			 */
+			if ((md.extensions & MKDEXT_LAX_SPACING) && !isalnum(data[i])) {
+				if (prefix_oli(tempdata)
+				|| prefix_uli(tempdata)) {
+					end = i;
+					break;
+				}
+				/* see if an html block starts here */
+				if (data[i] == '<' && md.callbacks.blockhtml
+						&& parse_htmlblock(out, md, tempdata, 0)) {
+					end = i;
+					break
+				}
+
+				/* see if a code fence starts here */
+				if ((md.extensions && MKDEXT_FENCED_CODE) != 0
+						&& is_codefence(tempdata, null) != 0) {
+					end = i;
+					break;
+				}
 			}
 
 			i = end;
@@ -2485,9 +2505,10 @@ var SnuOwnd = {};
 
 		while (beg < data.length) {
 			var fence_end;
+			var fence_trail = new STR();
 
-			fence_end = is_codefence(data.slice(beg), null);
-			if (fence_end != 0) {
+			fence_end = is_codefence(data.slice(beg), fence_trail);
+			if (fence_end != 0 && fence_trail.s.length == 0) {
 				beg += fence_end;
 				break;
 			}
@@ -3134,9 +3155,10 @@ var SnuOwnd = {};
 	SnuOwnd['MKDEXT_FENCED_CODE'] = MKDEXT_FENCED_CODE;
 	SnuOwnd['MKDEXT_AUTOLINK'] = MKDEXT_AUTOLINK;
 	SnuOwnd['MKDEXT_STRIKETHROUGH'] = MKDEXT_STRIKETHROUGH;
-	SnuOwnd['MKDEXT_LAX_HTML_BLOCKS'] = MKDEXT_LAX_HTML_BLOCKS;
+//	SnuOwnd['MKDEXT_LAX_HTML_BLOCKS'] = MKDEXT_LAX_HTML_BLOCKS;
 	SnuOwnd['MKDEXT_SPACE_HEADERS'] = MKDEXT_SPACE_HEADERS;
 	SnuOwnd['MKDEXT_SUPERSCRIPT'] = MKDEXT_SUPERSCRIPT;
+	SnuOwnd['MKDEXT_LAX_SPACING'] = MKDEXT_LAX_SPACING;
 
 //	SnuOwnd['MKDA_NOT_AUTOLINK'] = MKDA_NOT_AUTOLINK;
 //	SnuOwnd['MKDA_NORMAL'] = MKDA_NORMAL;
