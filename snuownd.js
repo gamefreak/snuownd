@@ -538,6 +538,31 @@ var SnuOwnd = {};
 		};
 	}
 
+	function getDefaultRenderOptions() {
+		return {
+			nofollow: 0,
+			target: null,
+//			html: {
+				tocData: {
+					headerCount: 0,
+					currentLevel: 0,
+					levelOffest: 0
+				},
+				flags: HTML_SKIP_HTML | HTML_SAFELINK | HTML_ESCAPE | HTML_USE_XHTML,
+				/* extra callbacks */
+				//	void (*link_attributes)(struct buf *ob, const struct buf *url, void *self);
+				link_attributes: function link_attributes(out, url, options) {
+
+					if (options.nofollow) out.s += ' rel="nofollow"';
+
+					if (options.target != null) {
+						out.s += ' target="' + options.target + '"';
+					}
+				}
+//			}
+		};
+	}
+
 	function getDefaultCallbacks() {
 		return {
 			blockcode: cb_blockcode,
