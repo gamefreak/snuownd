@@ -19,7 +19,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-// up to date with 2607a45c030608ddcd11dd6f3954768532d52fec
+// up to date with 399d9f918fa782437c44ecc3225fa0981ceaf499
 
 var SnuOwnd = {};
 (function(){
@@ -326,7 +326,7 @@ var SnuOwnd = {};
 			return link_end;
 		}
 
-	function check_domain(data) {
+	function check_domain(data, allow_short) {
 		var i, np = 0;
 
 		if (!isalnum(data[0])) return 0;
@@ -338,7 +338,15 @@ var SnuOwnd = {};
 
 		/* a valid domain needs to have at least a dot.
 		 * that's as far as we get */
-		return np ? i : 0;
+		if (allow_short) {
+			/* We don't need a valid domain in the strict sence (with
+			 * at least one dot; so just make sure it's composed of valid
+			 * domain characters and return the length of the valid
+			 * sequence. */
+			return i;
+		} else {
+			return np ? i : 0;
+		}
 	}
 
 
@@ -363,7 +371,7 @@ var SnuOwnd = {};
 	}
 
 
-	function sd_autolink__url(rewind_p, link, data_, offset, size) {
+	function sd_autolink__url(rewind_p, link, data_, offset, size, flags) {
 		var data = data_.slice(offset);
 		var link_end, rewind = 0, domain_len;
 
@@ -374,7 +382,7 @@ var SnuOwnd = {};
 		if (!sd_autolink_issafe(data_.substr(offset-rewind, size+rewind))) return 0;
 		link_end = "://".length;
 
-		domain_len = check_domain(data.slice(link_end));
+		domain_len = check_domain(data.slice(link_end), flags & SD_AUTOLINK_SHORT_DOMAINS);
 		if (domain_len == 0) return 0;
 
 		link_end += domain_len;
@@ -448,7 +456,7 @@ var SnuOwnd = {};
 	}
 
 
-	function sd_autolink__email(rewind_p, link, data_, offset, size) {
+	function sd_autolink__email(rewind_p, link, data_, offset, size, flags) {
 		var data = data_.slice(offset);
 		var link_end, rewind;
 		var nb = 0, np = 0;
@@ -486,7 +494,7 @@ var SnuOwnd = {};
 		return link_end;
 	}
 
-	function sd_autolink__www(rewind_p, link, data_, offset, size) {
+	function sd_autolink__www(rewind_p, link, data_, offset, size, flags) {
 		var data = data_.slice(offset);
 		var link_end;
 
@@ -496,7 +504,7 @@ var SnuOwnd = {};
 //		if (size < 4 || memcmp(data, "www.", strlen("www.")) != 0)
 		if (size < 4 || (data.slice(0,4) != 'www.')) return 0;
 
-		link_end = check_domain(data);
+		link_end = check_domain(data, 0);
 
 		if (link_end == 0)
 			return 0;
@@ -1426,7 +1434,7 @@ var SnuOwnd = {};
 		link = new Buffer();
 		md.spanStack.push(link);
 
-		if ((link_len = sd_autolink__url(rewind, link, data_, offset, data.length)) > 0) {
+		if ((link_len = sd_autolink__url(rewind, link, data_, offset, data.length, 0)) > 0) {
 			if (rewind.p > 0) out.s = out.s.slice(0, -rewind.p);
 			md.callbacks.autolink(out, link, MKDA_NORMAL, md.context);
 		}
@@ -1446,7 +1454,7 @@ var SnuOwnd = {};
 		link = new Buffer();
 		md.spanStack.push(link);
 
-		if ((link_len = sd_autolink__email(rewind, link, data_, offset, data.length)) > 0) {
+		if ((link_len = sd_autolink__email(rewind, link, data_, offset, data.length, 0)) > 0) {
 			if (rewind.p > 0) out.s = out.s.slice(0, -rewind.p);
 			md.callbacks.autolink(out, link, MKDA_EMAIL, md.context);
 		}
@@ -1466,7 +1474,7 @@ var SnuOwnd = {};
 		link = new Buffer();
 		md.spanStack.push(link);
 
-		if ((link_len = sd_autolink__www(rewind, link, data_, offset, data.length)) > 0) {
+		if ((link_len = sd_autolink__www(rewind, link, data_, offset, data.length, 0)) > 0) {
 			link_url = new Buffer();
 			md.spanStack.push(link_url);
 			link_url.s += 'http://';
@@ -1581,6 +1589,8 @@ var SnuOwnd = {};
 	var MD_CHAR_AUTOLINK_WWW = enumCounter++;
 	var MD_CHAR_AUTOLINK_SUBREDDIT_OR_USERNAME = enumCounter++;
 	var MD_CHAR_SUPERSCRIPT = enumCounter++;
+
+	var SD_AUTOLINK_SHORT_DOMAINS (1 << 0);
 
 	enumCounter = 0;
 	var MKDA_NOT_AUTOLINK = enumCounter++;	/* used internally when it is not an autolink*/
