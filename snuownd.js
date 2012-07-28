@@ -2869,7 +2869,7 @@ var SnuOwnd = {};
 
 		if (col < columns.p.length) return 0;
 
-		parse_table_row(out, md, data, columns.p, MKD_TABLE_HEADER);
+		parse_table_row(out, md, data.slice(0, header_end), columns.p, MKD_TABLE_HEADER);
 
 		return under_end + 1;
 	}
