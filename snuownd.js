@@ -1590,7 +1590,7 @@ var SnuOwnd = {};
 	var MD_CHAR_AUTOLINK_SUBREDDIT_OR_USERNAME = enumCounter++;
 	var MD_CHAR_SUPERSCRIPT = enumCounter++;
 
-	var SD_AUTOLINK_SHORT_DOMAINS (1 << 0);
+	var SD_AUTOLINK_SHORT_DOMAINS = (1 << 0);
 
 	enumCounter = 0;
 	var MKDA_NOT_AUTOLINK = enumCounter++;	/* used internally when it is not an autolink*/
