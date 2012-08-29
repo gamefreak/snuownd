@@ -3201,3 +3201,9 @@ var SnuOwnd = {};
 //	SnuOwnd['MKDA_NORMAL'] = MKDA_NORMAL;
 //	SnuOwnd['MKDA_EMAIL'] = MKDA_EMAIL;
 })();
+
+if (typeof(exports) != 'undefined') {
+	for (var key in SnuOwnd) {
+		exports[key] = SnuOwnd[key];
+	}
+}
