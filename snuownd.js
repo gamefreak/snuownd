@@ -194,7 +194,7 @@ var SnuOwnd = {};
 	function escape_href(out, src) {
 		var hex_chars = "0123456789ABCDEF";
 		var  i = 0, org;
-		var hex_str = ['$', '', ''];
+		var hex_str = ['%', '', ''];
 
 
 		while (i < src.length) {
@@ -415,7 +415,7 @@ var SnuOwnd = {};
 			var start = link_end;
 			var max_length = 24;
 			/* special case: /r/reddit.com (the only subreddit with a '.') */
-			if ( size > link_end+10 && data.substr(link_end, 10).toLowerCase() == 'reddit.com') {
+			if ( size >= link_end+10 && data.substr(link_end, 10).toLowerCase() == 'reddit.com') {
 				link_end += 10;
 				max_length = 10;
 			} else {
