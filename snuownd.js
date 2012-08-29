@@ -413,7 +413,7 @@ var SnuOwnd = {};
 
 		do {
 			var start = link_end;
-			var max_length = 21;
+			var max_length = 24;
 			/* special case: /r/reddit.com (the only subreddit with a '.') */
 			if ( size > link_end+10 && data.substr(link_end, 10).toLowerCase() == 'reddit.com') {
 				link_end += 10;
