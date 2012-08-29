@@ -409,17 +409,41 @@ var SnuOwnd = {};
 		/* make sure this / is part of /r/ */
 		if (data.indexOf('/r/') != 0) return 0;
 
-		/* the first character of a subreddit name must be a letter or digit */
 		link_end = "/r/".length;
-		if (!isalnum(data[link_end])) return 0;
-		link_end += 1;
 
-		/* consume valid characters ([A-Za-z0-9_]) until we run out */
-		while (link_end < size && (isalnum(data[link_end]) ||
-					data[link_end] == '_' ||
-					data[link_end] == '+'))
-			link_end++;
+		do {
+			var start = link_end;
+			var max_length = 21;
+			/* special case: /r/reddit.com (the only subreddit with a '.') */
+			if ( size > link_end+10 && data.substr(link_end, 10).toLowerCase() == 'reddit.com') {
+				link_end += 10;
+				max_length = 10;
+			} else {
+				/* If not the special case make sure it starts with (t:)?[A-Za-z0-9] */
+				/* support autolinking to timereddits, /r/t:when (1 April 2012) */
+				if ( size > link_end+2 && data.substr(link_end, 2) == 't:')
+					link_end += 2;  /* Jump over the 't:' */
 
+				/* the first character of a subreddit name must be a letter or digit */
+				if (!isalnum(data[link_end]))
+					return 0;
+				link_end += 1;
+			}
+
+			/* consume valid characters ([A-Za-z0-9_]) until we run out */
+			while (link_end < size && (isalnum(data[link_end]) ||
+								data[link_end] == '_'))
+				link_end++;
+
+			/* valid subreddit names are between 3 and 21 characters, with
+			 * some subreddits having 2-character names. Don't bother with
+			 * autolinking for anything outside this length range.
+			 * (chksrname function in reddit/.../validator.py) */
+			if ( link_end-start < 2 || link_end-start > max_length )
+				return 0;
+
+			/* If we are linking to a multireddit, continue */
+		} while ( link_end < size && data[link_end] == '+' && link_end++ );
 		/* make the link */
 		link.s += data.slice(0, link_end);
 		rewind_p.p = 0;
