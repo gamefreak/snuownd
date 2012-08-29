@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SnuOwnd output tester</title>
+	<script type="text/javascript" src="snuownd.js"></script>
+	<style type="text/css">
+#html {
+	border: thin solid black;
+	min-height: 10em;
+	padding: 0.5em;
+}
+
+#html table {
+	border: thin solid grey;
+}
+	</style>
+</head>
+<body>
+	<textarea id="markdown"></textarea>
+	<div id="html"></div>
+		<script type="text/javascript">
+var parser = SnuOwnd.getParser();
+
+document.getElementById('markdown').addEventListener('input', function(e) {
+	document.getElementById('html').innerHTML = parser.render(e.target.value);
+});
+
+	</script>
+</body>
+</html>
