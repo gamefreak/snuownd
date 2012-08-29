@@ -19,7 +19,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-// up to date with 399d9f918fa782437c44ecc3225fa0981ceaf499
+// up to date with 7d3986e3d4f2a4ba856780d4f1b8baee29b227c6
 
 var SnuOwnd = {};
 (function(){
@@ -553,7 +553,7 @@ var SnuOwnd = {};
 				tocData: {
 					headerCount: 0,
 					currentLevel: 0,
-					levelOffest: 0
+					levelOffset: 0
 				},
 				flags: HTML_SKIP_HTML | HTML_SKIP_IMAGES | HTML_SAFELINK | HTML_ESCAPE | HTML_USE_XHTML,
 				/* extra callbacks */
@@ -570,30 +570,6 @@ var SnuOwnd = {};
 		};
 	}
 
-	function getDefaultRenderOptions() {
-		return {
-			nofollow: 0,
-			target: null,
-//			html: {
-				tocData: {
-					headerCount: 0,
-					currentLevel: 0,
-					levelOffest: 0
-				},
-				flags: HTML_SKIP_HTML | HTML_SAFELINK | HTML_ESCAPE | HTML_USE_XHTML,
-				/* extra callbacks */
-				//	void (*link_attributes)(struct buf *ob, const struct buf *url, void *self);
-				link_attributes: function link_attributes(out, url, options) {
-
-					if (options.nofollow) out.s += ' rel="nofollow"';
-
-					if (options.target != null) {
-						out.s += ' target="' + options.target + '"';
-					}
-				}
-//			}
-		};
-	}
 
 	function getDefaultCallbacks() {
 		return {
