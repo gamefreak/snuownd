@@ -1,0 +1,18 @@
+{
+  "name": "snuownd",
+  "version": "0.1.0",
+  "description": "JavaScript port of Reddit's SnuDown Markdown parser.",
+  "main": "snuownd.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/gamefreak/snuownd.git"
+  },
+  "keywords": [
+    "markdown"
+  ],
+  "author": "Scott McClaugherty",
+  "license": "MIT"
+}
