@@ -28,7 +28,7 @@ var SnuOwnd = {};
 	function isalnum(c) { return /[A-Za-z0-9]/.test(c); }
 	function isalpha(c) { return /[A-Za-z]/.test(c); }
 	function ispunct(c) {return /[\x20-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]/.test(c); }
-
+	if (typeof encodeURIcomponent == 'undefined') encodeURIcomponent = require('querystring').escape;
 
 	function find_block_tag (str) {
 		var wordList = [
@@ -192,9 +192,7 @@ var SnuOwnd = {};
 	];
 
 	function escape_href(out, src) {
-		var hex_chars = "0123456789ABCDEF";
 		var  i = 0, org;
-		var hex_str = ['%', '', ''];
 
 
 		while (i < src.length) {
@@ -239,10 +237,13 @@ var SnuOwnd = {};
 
 					/* every other character goes with a %XX escaping */
 				default:
+					out.s += encodeURIcomponent(src[i]);
+					/*
 					var cc = src.charCodeAt(i);
 					hex_str[1] = hex_chars[(cc >> 4) & 0xF];
 					hex_str[2] = hex_chars[cc & 0xF];
 					out.s += hex_str.join('');
+					*/
 			}
 
 			i++;
