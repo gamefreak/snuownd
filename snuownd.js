@@ -550,24 +550,22 @@ var SnuOwnd = {};
 		return {
 			nofollow: 0,
 			target: null,
-//			html: {
-				tocData: {
-					headerCount: 0,
-					currentLevel: 0,
-					levelOffset: 0
-				},
-				flags: HTML_SKIP_HTML | HTML_SKIP_IMAGES | HTML_SAFELINK | HTML_ESCAPE | HTML_USE_XHTML,
-				/* extra callbacks */
-				//	void (*link_attributes)(struct buf *ob, const struct buf *url, void *self);
-				link_attributes: function link_attributes(out, url, options) {
+			tocData: {
+				headerCount: 0,
+				currentLevel: 0,
+				levelOffset: 0
+			},
+			flags: HTML_SKIP_HTML | HTML_SKIP_IMAGES | HTML_SAFELINK | HTML_ESCAPE | HTML_USE_XHTML,
+			/* extra callbacks */
+			//	void (*link_attributes)(struct buf *ob, const struct buf *url, void *self);
+			link_attributes: function link_attributes(out, url, options) {
 
-					if (options.nofollow) out.s += ' rel="nofollow"';
+				if (options.nofollow) out.s += ' rel="nofollow"';
 
-					if (options.target != null) {
-						out.s += ' target="' + options.target + '"';
-					}
+				if (options.target != null) {
+					out.s += ' target="' + options.target + '"';
 				}
-//			}
+			}
 		};
 	}
 
@@ -3137,6 +3135,17 @@ var SnuOwnd = {};
 	}
 	Markdown.prototype['render'] = render;
 
+	/**
+	Create a parser object using the given configuration parameters.
+
+	To get a Reddit equivelent configuration, pass no arguments.
+
+	@param {?Object=} callbacks A callacks object.
+	@param {?Number=} extensions A series of OR'd extension flags. (Extension flags start with MKDEXT_)
+	@param {?Number=} nestingLimit The maximum depth to which inline elements can be nested.
+	@param {?Object=} context An arbitrary context object specific to your callbacks.
+	@return {Markdown} A configured markdown object.
+	*/
 	function getParser(callbacks, extensions, nestingLimit, context) {
 		var md = new Markdown();
 		if (callbacks) md.callbacks = callbacks;
