@@ -7,16 +7,24 @@
 #html {
 	border: thin solid black;
 	min-height: 10em;
-	padding: 0.5em;
+	padding: 12px;
 }
 
 #html table {
 	border: thin solid grey;
 }
+
+#html table td, #html table th {
+	border: thin solid lightgrey;
+}
+#markdown {
+	min-width: 40em;
+	min-height: 20em;
+}
 	</style>
 </head>
 <body>
-	<textarea id="markdown"></textarea>
+	<textarea id="markdown" width="40"></textarea>
 	<div id="html"></div>
 		<script type="text/javascript">
 var parser = SnuOwnd.getParser();
