@@ -2114,14 +2114,14 @@ exports.getTocCallbacks = getTocCallbacks;
 		//syn_start = data + i;
 		syn_start = i;
 
-		if (i < size && data[i] == '{') {
+		if (i < data.length && data[i] == '{') {
 			i++; syn_start++;
 
 			while (i < data.length && data[i] != '}' && data[i] != '\n') {
 				syn_len++; i++;
 			}
 
-			if (i == size || data[i] != '}')
+			if (i == data.length || data[i] != '}')
 				return 0;
 
 			/* strip all whitespace at the beginning and the end
@@ -2142,7 +2142,7 @@ exports.getTocCallbacks = getTocCallbacks;
 			}
 		}
 
-		if (syntax) syntax.s = data.substr(syn_start, syn_length);
+		if (syntax) syntax.s = data.substr(syn_start, syn_len);
 //		syntax->size = syn;
 
 		while (i < data.length && data[i] != '\n') {
@@ -2915,7 +2915,7 @@ exports.getTocCallbacks = getTocCallbacks;
 
 		while (beg < data.length) {
 			var fence_end;
-			var fence_trail = new STR();
+			var fence_trail = new Buffer();
 
 			fence_end = is_codefence(data.slice(beg), fence_trail);
 			if (fence_end != 0 && fence_trail.s.length == 0) {
