@@ -21,8 +21,11 @@
  */
 // up to date with 7d3986e3d4f2a4ba856780d4f1b8baee29b227c6
 
+/**
+@module SnuOwnd
+*/
 var SnuOwnd = {};
-(function(){
+(function(exports){
 	function _isspace(c) {return c == ' ' || c == '\n';}
 	function isspace(c) {return /\s/.test(c);}
 	function isalnum(c) { return /[A-Za-z0-9]/.test(c); }
@@ -546,93 +549,467 @@ var SnuOwnd = {};
 		return link_end;
 	}
 
-	function getDefaultRenderOptions() {
-		return {
-			nofollow: 0,
-			target: null,
-			tocData: {
-				headerCount: 0,
-				currentLevel: 0,
-				levelOffset: 0
-			},
-			flags: HTML_SKIP_HTML | HTML_SKIP_IMAGES | HTML_SAFELINK | HTML_ESCAPE | HTML_USE_XHTML,
-			/* extra callbacks */
-			//	void (*link_attributes)(struct buf *ob, const struct buf *url, void *self);
-			link_attributes: function link_attributes(out, url, options) {
+/**
+Initialize a Callbacks object.
 
-				if (options.nofollow) out.s += ' rel="nofollow"';
+@constructor
+@param {Object.<string, ?function>} callbacks A set of callbacks to use as the methods on this object.
+*/
+function Callbacks(callbacks) {
+	if (callbacks) {
+		for (var name in callbacks) {
+			if (name in this) this[name] = callbacks[name];
+		}
+	}
+}
 
-				if (options.target != null) {
-					out.s += ' target="' + options.target + '"';
-				}
+Callbacks.prototype = {
+/**
+Renders a code block.
+
+Syntax highlighting specific to lanugage may be performed here.
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The input text.
+@param {Buffer} language The name of the code langage.
+@param {?Object} context A renderer specific context object.
+*/
+	blockcode: null,
+/**
+Renders a blockquote.
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The input text.
+@param {?Object} context A renderer specific context object.
+*/
+	blockquote: null,
+/**
+Renders a block of HTML code.
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The input text.
+@param {?Object} context A renderer specific context object.
+*/
+	blockhtml: null,
+/**
+Renders a header.
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The input text.
+@param {Number} level The header level.
+@param {?Object} context A renderer specific context object.
+*/
+	header: null,
+/**
+Renders a horizontal rule.
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {?Object} context A renderer specific context object.
+*/
+	hrule: null,
+/**
+Renders a list.
+<p>
+This method handles the list wrapper, which in terms of HTML would be &lt;ol&gt; or &lt;ul&gt;.
+This method is not responsible for handling list elements, all such processing should
+already have occured on text pased to the method . All that it is intended
+to do is to wrap the text parameter in anything needed.
+</p>
+
+@example
+out.s += "&lt;ul&gt;" + text.s + "&lt;/ul&gt;"
+
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The input that goes inside the list.
+@param {Number} flags A bitfield holding a portion of the render state. The only bit that this should be concerned with is MKD_LIST_ORDERED
+@param {?Object} context A renderer specific context object.
+*/
+	list: null,
+/**
+Renders a list.
+<p>
+Wraps the text in a list element.
+</p>
+
+@example
+out.s += "&lt;li&gt;" + text.s + "&lt;/li&gt;"
+
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The contents of the list element.
+@param {Number} flags A bitfield holding a portion of the render state. The only bit that this should be concerned with is MKD_LI_BLOCK.
+@param {?Object} context A renderer specific context object.
+*/
+	listitem: null,
+/**
+Renders a paragraph.
+
+@example
+
+out.s += "&lt;p&gt;" + text.s + "&lt;/p&gt;";
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The input text.
+@param {?Object} context A renderer specific context object.
+*/
+	paragraph: null,
+/**
+Renders a table.
+
+@example
+
+out.s += "<table><thead>";
+out.s += header.s;
+out.s += "</thead><tbody>";
+out.s += body.s;
+out.s += "</tbody></table>";
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} head The table header.
+@param {Buffer} body The table body.
+@param {?Object} context A renderer specific context object.
+*/
+	table: null,
+/**
+Renders a table row.
+
+@example
+
+out.s += "&lt;tr&gt;" + text.s + "&lt;/tr&gt;";
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The input text.
+@param {?Object} context A renderer specific context object.
+*/
+	table_row: null,
+/**
+Renders a table cell.
+
+@example
+
+out.s += "&lt;td&gt;" + text.s + "&lt;/td&gt;";
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The input text.
+@param {Number} flags A bit filed indicating a portion of the output state. Relevant bits are: MKD_TABLE_HEADER, MKD_TABLE_ALIGN_CENTER. MKD_TABLE_ALIGN_L, and MKD_TABLE_ALIGN_R.
+@param {?Object} context A renderer specific context object.
+*/
+	table_cell: null,
+/**
+Renders a link that was autodetected.
+
+@example
+
+out.s += "&lt;a href=\""+ text.s + "\"&gt;" + text.s + "&lt;/a&gt;";
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The address being linked to.
+@param {Number} type Equal to MKDA_NORMAL or MKDA_EMAIL
+@param {?Object} context A renderer specific context object.
+@returns {Boolean} Whether or not the tag was rendered.
+*/
+	autolink: null,
+/**
+Renders inline code.
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The text being wrapped.
+@param {?Object} context A renderer specific context object.
+@returns {Boolean} Whether or not the tag was rendered.
+*/
+	codespan: null,
+/**
+Renders text with double emphasis. Default is equivalent to the HTML &lt;strong&gt; tag.
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The text being wrapped.
+@param {?Object} context A renderer specific context object.
+@returns {Boolean} Whether or not the tag was rendered.
+*/
+	double_emphasis: null,
+/**
+Renders text with single emphasis. Default is equivalent to the HTML &lt;em&gt; tag.
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The text being wrapped.
+@param {?Object} context A renderer specific context object.
+@returns {Boolean} Whether or not the tag was rendered.
+*/
+	emphasis: null,
+/**
+Renders an image.
+
+@example
+
+out.s = "&lt;img src=\"" + link.s + "\" title=\"" + title.s + "\"  alt=\"" + alt.s + "\"/&gt;";"
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} link The address of the image.
+@param {Buffer} title Title text for the image
+@param {Buffer} alt Alt text for the image
+@param {?Object} context A renderer specific context object.
+@returns {Boolean} Whether or not the tag was rendered.
+*/
+	image: null,
+/**
+Renders line break.
+
+@example
+
+out.s += "&lt;br/&gt;";
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {?Object} context A renderer specific context object.
+@returns {Boolean} Whether or not the tag was rendered.
+*/
+	linebreak: null,
+/**
+Renders a link.
+
+@example
+
+out.s = "&lt;a href=\"" + link.s + "\" title=\"" + title.s + "\"&gt;" + content.s + "&lt;/a&gt;";
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} link The link address.
+@param {Buffer} title Title text for the link.
+@param {Buffer} content Link text.
+@param {?Object} context A renderer specific context object.
+@returns {Boolean} Whether or not the tag was rendered.
+*/
+	link: null,
+/**
+Copies and potentially escapes some HTML.
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The input text.
+@param {?Object} context A renderer specific context object.
+@returns {Boolean} Whether or not the tag was rendered.
+*/
+	raw_html_tag: null,
+/**
+Renders text with triple emphasis. Default is equivalent to both the &lt;em&gt; and &lt;strong&gt; HTML tags.
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The text being wrapped.
+@param {?Object} context A renderer specific context object.
+@returns {Boolean} Whether or not the tag was rendered.
+*/
+	triple_emphasis: null,
+/**
+Renders text crossd out.
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The text being wrapped.
+@param {?Object} context A renderer specific context object.
+@returns {Boolean} Whether or not the tag was rendered.
+*/
+	strikethrough: null,
+/**
+Renders text as superscript.
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The text being wrapped.
+@param {?Object} context A renderer specific context object.
+@returns {Boolean} Whether or not the tag was rendered.
+*/
+	superscript: null,
+/**
+Escapes an HTML entity.
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The text being wrapped.
+@param {?Object} context A renderer specific context object.
+*/
+	entity: null,
+/**
+Renders plain text.
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {Buffer} text The text being rendered.
+@param {?Object} context A renderer specific context object.
+*/
+	normal_text: null,
+/**
+Creates opening boilerplate for a table of contents.
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {?Object} context A renderer specific context object.
+*/
+	doc_header: null,
+/**
+Creates closing boilerplate for a table of contents.
+
+@method
+@param {Buffer} out The output string buffer to append to.
+@param {?Object} context A renderer specific context object.
+*/
+	doc_footer: null
+};
+
+
+/**
+A renderer object
+
+@constructor
+@param {Callbacks} callbacks The callbacks object to use for the renderer.
+@param {?Callbacks} context Renderer specific context information.
+*/
+function Renderer(callbacks, context) {
+	this.callbacks = callbacks;
+	this.context = context;
+}
+
+/**
+Instantiates a custom Renderer object.
+
+@param {Callbacks} callbacks The callbacks object to use for the renderer.
+@param {?Callbacks} context Renderer specific context information.
+@returns {Renderer}
+*/
+function createCustomRenderer(callbacks, context) {
+	return new Renderer(callbacks, context)
+}
+exports.createCustomRenderer = createCustomRenderer;
+
+/**
+Produces a renderer object that will match Reddit's output.
+@returns {Renderer} A renderer object that will match Reddit's output.
+*/
+function getRedditRenderer() {
+	return new Renderer(getRedditCallbacks() ,{
+		nofollow: 0,
+		target: null,
+		tocData: {
+			headerCount: 0,
+			currentLevel: 0,
+			levelOffset: 0
+		},
+		flags: HTML_SKIP_HTML | HTML_SKIP_IMAGES | HTML_SAFELINK | HTML_ESCAPE | HTML_USE_XHTML,
+		/* extra callbacks */
+		//	void (*link_attributes)(struct buf *ob, const struct buf *url, void *self);
+		link_attributes: function link_attributes(out, url, options) {
+
+			if (options.nofollow) out.s += ' rel="nofollow"';
+
+			if (options.target != null) {
+				out.s += ' target="' + options.target + '"';
 			}
-		};
-	}
+		}
+	});
+}
+exports.getRedditRenderer = getRedditRenderer;
 
+/**
+Create a Callbacks object with the given callback table.
 
-	function getDefaultCallbacks() {
-		return {
-			blockcode: cb_blockcode,
-			blockquote: cb_blockquote,
-			blockhtml: cb_blockhtml,
-			header: cb_header,
-			hrule: cb_hrule,
-			list: cb_list,
-			listitem: cb_listitem,
-			paragraph: cb_paragraph,
-			table: cb_table,
-			table_row: cb_table_row,
-			table_cell: cb_table_cell,
-			autolink: cb_autolink,
-			codespan: cb_codespan,
-			double_emphasis: cb_double_emphasis,
-			emphasis: cb_emphasis,
-			image: cb_image,
-			linebreak: cb_linebreak,
-			link: cb_link,
-			raw_html_tag: cb_raw_html_tag,
-			triple_emphasis: cb_triple_emphasis,
-			strikethrough: cb_strikethrough,
-			superscript: cb_superscript,
-			entity: null,
-			normal_text: cb_normal_text,
-			doc_header: null,
-			doc_footer: null
-		};
-	}
+@param {Object.<string, function>} callbacks A table of callbacks to place int a callbacks object.
+@returns {Callbacks} A callbacks object holding the provided callbacks.
+*/
+function createCustomCallbacks(callbacks) {
+	return new Callbacks(callbacks);
+}
+exports.createCustomCallbacks = createCustomCallbacks;
 
-	function getTocCallbacks() {
-		return {
-			blockcode: null,
-			blockquote: null,
-			blockhtml: null,
-			header: cb_toc_header,
-			hrule: null,
-			list: null,
-			listitem: null,
-			paragraph: null,
-			table: null,
-			table_row: null,
-			table_cell: null,
-			autolink: null,
-			codespan: cb_codespan,
-			double_emphasis: cb_double_emphasis,
-			emphasis: cb_emphasis,
-			image: null,
-			linebreak: null,
-			link: cb_toc_link,
-			raw_html_tag: null,
-			triple_emphasis: cb_triple_emphasis,
-			strikethrough: cb_strikethrough,
-			superscript: cb_superscript,
-			entity: null,
-			normal_text: null,
-			doc_header: null,
-			doc_footer: cb_toc_finalize
-		};
-	}
+/**
+Produce a callbacks object that matches Reddit's output.
+@returns {Callbacks} A callbacks object that matches Reddit's output.
+*/
+function getRedditCallbacks(){
+	return new Callbacks({
+		blockcode: cb_blockcode,
+		blockquote: cb_blockquote,
+		blockhtml: cb_blockhtml,
+		header: cb_header,
+		hrule: cb_hrule,
+		list: cb_list,
+		listitem: cb_listitem,
+		paragraph: cb_paragraph,
+		table: cb_table,
+		table_row: cb_table_row,
+		table_cell: cb_table_cell,
+		autolink: cb_autolink,
+		codespan: cb_codespan,
+		double_emphasis: cb_double_emphasis,
+		emphasis: cb_emphasis,
+		image: cb_image,
+		linebreak: cb_linebreak,
+		link: cb_link,
+		raw_html_tag: cb_raw_html_tag,
+		triple_emphasis: cb_triple_emphasis,
+		strikethrough: cb_strikethrough,
+		superscript: cb_superscript,
+		entity: null,
+		normal_text: cb_normal_text,
+		doc_header: null,
+		doc_footer: null
+	});
+}
+exports.getRedditCallbacks = getRedditCallbacks;
 
-	/* block level callbacks - NULL skips the block */
+/**
+Produce a callbacks object for rendering a table of contents.
+@returns {Callbacks} A callbacks object for rendering a table of contents.
+*/
+function getTocCallbacks() {
+	return new Callbacks({
+		blockcode: null,
+		blockquote: null,
+		blockhtml: null,
+		header: cb_toc_header,
+		hrule: null,
+		list: null,
+		listitem: null,
+		paragraph: null,
+		table: null,
+		table_row: null,
+		table_cell: null,
+		autolink: null,
+		codespan: cb_codespan,
+		double_emphasis: cb_double_emphasis,
+		emphasis: cb_emphasis,
+		image: null,
+		linebreak: null,
+		link: cb_toc_link,
+		raw_html_tag: null,
+		triple_emphasis: cb_triple_emphasis,
+		strikethrough: cb_strikethrough,
+		superscript: cb_superscript,
+		entity: null,
+		normal_text: null,
+		doc_header: null,
+		doc_footer: cb_toc_finalize
+	});
+}
+exports.getTocCallbacks = getTocCallbacks;
+
+/* block level callbacks - NULL skips the block */
 //	void (*blockcode)(struct buf *ob, const struct buf *text, const struct buf *lang, void *opaque);
 	function cb_blockcode(out, text, lang, options) {
 		if (out.s.length) out.s += '\n';
@@ -664,8 +1041,9 @@ var SnuOwnd = {};
 
 		out.s += '</code></pre>\n';
 	}
+
 //	void (*blockquote)(struct buf *ob, const struct buf *text, void *opaque);
-	function cb_blockquote(out, text, lang, options) {
+	function cb_blockquote(out, text, options) {
 		if (out.s.length) out.s += '\n';
 		out.s += '<blockquote>\n';
 		if (text) out.s += text.s;
@@ -712,7 +1090,6 @@ var SnuOwnd = {};
 	}
 
 //	void (*listitem)(struct buf *ob, const struct buf *text, int flags, void *opaque);
-
 	function cb_listitem(out, text, flags, options) {
 		out.s += '<li>';
 		if (text) {
@@ -810,7 +1187,7 @@ var SnuOwnd = {};
 		}
 	}
 
-	/* span level callbacks - NULL or return 0 prints the span verbatim */
+/* span level callbacks - NULL or return 0 prints the span verbatim */
 //	int (*autolink)(struct buf *ob, const struct buf *link, enum mkd_autolink type, void *opaque);
 	function cb_autolink(out, link, type, options) {
 		var offset = 0;
@@ -848,7 +1225,6 @@ var SnuOwnd = {};
 
 		return 1;
 	}
-
 
 //	int (*codespan)(struct buf *ob, const struct buf *text, void *opaque);
 	function cb_codespan(out, text, options) {
@@ -972,9 +1348,9 @@ var SnuOwnd = {};
 		return 1;
 	}
 
-	/* low level callbacks - NULL copies input directly into the output */
+/* low level callbacks - NULL copies input directly into the output */
 //	void (*entity)(struct buf *ob, const struct buf *entity, void *opaque);
-	//TODO: WRITE
+//TODO: WRITE
 //	entity: null,
 
 //	void (*normal_text)(struct buf *ob, const struct buf *text, void *opaque);
@@ -1027,8 +1403,7 @@ var SnuOwnd = {};
 		}
 	}
 
-
-	/* header and footer */
+/* header and footer */
 // doc_header(Buffer out}, context);
 //		doc_header: null,
 //	doc_footer(Buffer out, context);
@@ -1648,12 +2023,13 @@ var SnuOwnd = {};
 		this.spanStack = [];
 		this.blockStack = [];
 		this.extensions = MKDEXT_NO_INTRA_EMPHASIS | MKDEXT_SUPERSCRIPT | MKDEXT_AUTOLINK | MKDEXT_STRIKETHROUGH | MKDEXT_TABLES;
-		this.context = getDefaultRenderOptions();
+		var renderer = getRedditRenderer();
+		this.context = renderer.context;
 		this.inLinkBody = 0;
 		this.activeChars = {};
 		this.refs = {};
 	};
-	Markdown.prototype.callbacks = getDefaultCallbacks();
+	Markdown.prototype.callbacks =  getRedditCallbacks();
 	Markdown.prototype.nestingLimit = 16;
 
 
@@ -3089,6 +3465,12 @@ var SnuOwnd = {};
 		}
 	}
 
+	/**
+	Render markdown code to HTML.
+
+	@param {string} source Markdown code.
+	@returns {string} HTML code.
+	*/
 	function render(source) {
 		var text = new Buffer();
 		var beg = 0, end;
@@ -3140,17 +3522,16 @@ var SnuOwnd = {};
 
 	To get a Reddit equivelent configuration, pass no arguments.
 
-	@param {?Object=} callbacks A callacks object.
+	@param {?Renderer=} renderer A renderer object.
 	@param {?Number=} extensions A series of OR'd extension flags. (Extension flags start with MKDEXT_)
 	@param {?Number=} nestingLimit The maximum depth to which inline elements can be nested.
-	@param {?Object=} context An arbitrary context object specific to your callbacks.
 	@return {Markdown} A configured markdown object.
 	*/
-	function getParser(callbacks, extensions, nestingLimit, context) {
+	exports.getParser = function getParser(renderer, extensions, nestingLimit) {
 		var md = new Markdown();
-		if (callbacks) md.callbacks = callbacks;
+		if (renderer) md.callbacks = renderer.callbacks;
 		if (nestingLimit) md.nestingLimit = nestingLimit;
-		if (context) md.context = context;
+		if (renderer) md.context = context;
 		if (extensions != undefined && extensions != null) md.extensions = extensions;
 
 		var cb = md.callbacks;
@@ -3179,41 +3560,29 @@ var SnuOwnd = {};
 		return md;
 	}
 
-	//Exports
-	SnuOwnd['getDefaultCallbacks'] = getDefaultCallbacks;
-	SnuOwnd['getTocCallbacks'] = getTocCallbacks;
-	SnuOwnd['getParser'] = getParser;
 
-	SnuOwnd['HTML_SKIP_HTML'] = HTML_SKIP_HTML;
-	SnuOwnd['HTML_SKIP_STYLE'] = HTML_SKIP_STYLE;
-	SnuOwnd['HTML_SKIP_IMAGES'] = HTML_SKIP_IMAGES;
-	SnuOwnd['HTML_SKIP_LINKS'] = HTML_SKIP_LINKS;
-	SnuOwnd['HTML_EXPAND_TABS'] = HTML_EXPAND_TABS;
-	SnuOwnd['HTML_SAFELINK'] = HTML_SAFELINK;
-	SnuOwnd['HTML_TOC'] = HTML_TOC;
-	SnuOwnd['HTML_HARD_WRAP'] = HTML_HARD_WRAP;
-	SnuOwnd['HTML_USE_XHTML'] = HTML_USE_XHTML;
-	SnuOwnd['HTML_ESCAPE'] = HTML_ESCAPE;
+	exports.HTML_SKIP_HTML = HTML_SKIP_HTML;
+	exports.HTML_SKIP_STYLE = HTML_SKIP_STYLE;
+	exports.HTML_SKIP_IMAGES = HTML_SKIP_IMAGES;
+	exports.HTML_SKIP_LINKS = HTML_SKIP_LINKS;
+	exports.HTML_EXPAND_TABS = HTML_EXPAND_TABS;
+	exports.HTML_SAFELINK = HTML_SAFELINK;
+	exports.HTML_TOC = HTML_TOC;
+	exports.HTML_HARD_WRAP = HTML_HARD_WRAP;
+	exports.HTML_USE_XHTML = HTML_USE_XHTML;
+	exports.HTML_ESCAPE = HTML_ESCAPE;
+	exports.MKDEXT_NO_INTRA_EMPHASIS = MKDEXT_NO_INTRA_EMPHASIS;
+	exports.MKDEXT_TABLES = MKDEXT_TABLES;
+	exports.MKDEXT_FENCED_CODE = MKDEXT_FENCED_CODE;
+	exports.MKDEXT_AUTOLINK = MKDEXT_AUTOLINK;
+	exports.MKDEXT_STRIKETHROUGH = MKDEXT_STRIKETHROUGH;
+	exports.MKDEXT_SPACE_HEADERS = MKDEXT_SPACE_HEADERS;
+	exports.MKDEXT_SUPERSCRIPT = MKDEXT_SUPERSCRIPT;
+	exports.MKDEXT_LAX_SPACING = MKDEXT_LAX_SPACING;
 
-	SnuOwnd['MKDEXT_NO_INTRA_EMPHASIS'] = MKDEXT_NO_INTRA_EMPHASIS;
-	SnuOwnd['MKDEXT_TABLES'] = MKDEXT_TABLES;
-	SnuOwnd['MKDEXT_FENCED_CODE'] = MKDEXT_FENCED_CODE;
-	SnuOwnd['MKDEXT_AUTOLINK'] = MKDEXT_AUTOLINK;
-	SnuOwnd['MKDEXT_STRIKETHROUGH'] = MKDEXT_STRIKETHROUGH;
-//	SnuOwnd['MKDEXT_LAX_HTML_BLOCKS'] = MKDEXT_LAX_HTML_BLOCKS;
-	SnuOwnd['MKDEXT_SPACE_HEADERS'] = MKDEXT_SPACE_HEADERS;
-	SnuOwnd['MKDEXT_SUPERSCRIPT'] = MKDEXT_SUPERSCRIPT;
-	SnuOwnd['MKDEXT_LAX_SPACING'] = MKDEXT_LAX_SPACING;
+	exports['SD_AUTOLINK_SHORT_DOMAINS'] = SD_AUTOLINK_SHORT_DOMAINS;
 
-	SnuOwnd['SD_AUTOLINK_SHORT_DOMAINS'] = SD_AUTOLINK_SHORT_DOMAINS;
-
-//	SnuOwnd['MKDA_NOT_AUTOLINK'] = MKDA_NOT_AUTOLINK;
-//	SnuOwnd['MKDA_NORMAL'] = MKDA_NORMAL;
-//	SnuOwnd['MKDA_EMAIL'] = MKDA_EMAIL;
-})();
-
-if (typeof(exports) != 'undefined') {
-	for (var key in SnuOwnd) {
-		exports[key] = SnuOwnd[key];
-	}
-}
+	exports.MKDA_NOT_AUTOLINK = MKDA_NOT_AUTOLINK;
+	exports.MKDA_NORMAL = MKDA_NORMAL;
+	exports.MKDA_EMAIL = MKDA_EMAIL;
+})(typeof(exports)!='undefined'?exports:SnuOwnd);
