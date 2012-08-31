@@ -31,7 +31,7 @@ var SnuOwnd = {};
 	function isalnum(c) { return /[A-Za-z0-9]/.test(c); }
 	function isalpha(c) { return /[A-Za-z]/.test(c); }
 	function ispunct(c) {return /[\x20-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]/.test(c); }
-	if (typeof encodeURIcomponent == 'undefined' && typeof(require) != 'undefined') encodeURIcomponent =  require('querystring').escape;
+	if (typeof encodeURIComponent == 'undefined' && typeof(require) != 'undefined') encodeURIComponent =  require('querystring').escape;
 
 	function find_block_tag (str) {
 		var wordList = [
@@ -240,7 +240,7 @@ var SnuOwnd = {};
 
 					/* every other character goes with a %XX escaping */
 				default:
-					out.s += encodeURIcomponent(src[i]);
+					out.s += encodeURIComponent(src[i]);
 					/*
 					var cc = src.charCodeAt(i);
 					hex_str[1] = hex_chars[(cc >> 4) & 0xF];
@@ -1363,7 +1363,7 @@ exports.getTocCallbacks = getTocCallbacks;
 		/* set the level offset if this is the first header
 		 * we're parsing for the document */
 		if (options.tocData.currentLevel== 0) {
-			options.tocdata.levelOffset = level - 1;
+			options.tocData.levelOffset = level - 1;
 		}
 		level -= options.tocData.levelOffset;
 
@@ -1376,7 +1376,7 @@ exports.getTocCallbacks = getTocCallbacks;
 			out.s += '</li>\n';
 			while (level < options.tocData.currentLevel) {
 				out.s += '</ul\n</li>\n';
-				options.tocData.current_level--;
+				options.tocData.currentLevel--;
 			}
 			out.s += '<li>\n';
 		} else {
