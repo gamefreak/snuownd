@@ -411,7 +411,7 @@ var SnuOwnd = {};
 		if (size < 3) return 0;
 
 		/* make sure this / is part of /r/ */
-		if (data.indexOf('/r/') != 0) return 0;
+		if (data.toLowerCase().indexOf('/r/') != 0) return 0;
 
 		link_end = "/r/".length;
 
