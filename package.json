@@ -5,7 +5,10 @@
   "author": "Scott McClaugherty <scott.h.mcc@gmail.com>",
   "homepage": "http//github.com/gamefreak/snuownd",
   "license": "MIT",
-  "keywords": ["markdown", "reddit"],
+  "keywords": [
+    "markdown",
+    "reddit"
+  ],
   "main": "snuownd.js",
   "scripts": {
     "test": "node test.js"
@@ -16,5 +19,8 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/gamefreak/snuownd.git"
+  },
+  "devDependencies": {
+    "html-util": "~0.1.3"
   }
 }

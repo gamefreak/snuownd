@@ -141,6 +141,8 @@ cases = {
         '<p><a href="/r/t:heatdeathoftheuniverse">/r/t:heatdeathoftheuniverse</a></p>\n',
 }
 
+
+console.log("Running Snuodwn test cases.");
 var showSuccesses = false
 for (var text in cases) {
 
@@ -158,5 +160,88 @@ for (var text in cases) {
 		console.log(result);
 		console.log();
 	}
+}
+
+try {
+    var htmlutil = require('html-util');
+} catch (e) {
+    console.error('Could not load module "html-util", module must be installed to run tests.');
+    return 1;
+}
+
+
+console.log('Running tests against /r/all');
+var http = require('http');
+http.request({
+    host: 'www.reddit.com',
+    path: '/r/all/.json',
+    headers: {
+        'User-Agent': 'SnuOwnd Test Suite'
+    }
+}, function(res) {
+    // console.log(res);
+   var body = '';
+    res.on('data', function(chunk) {
+        body += chunk;
+    }).on('end', function() {
+        // console.log('BODY', body);
+        data = JSON.parse(body);
+        var list = [];
+        for (var i = 0; i < data.data.children.length; i++) {
+            list.push(data.data.children[i]);
+        }
+        function scan_page_loop(list) {
+            var obj = list.shift();
+            console.log(obj.data.permalink);
+            http.request({
+                    host: 'www.reddit.com',
+                    path: obj.data.permalink+'.json',
+                    headers: {
+                        'User-Agent': 'SnuOwnd Test Suite'
+                    }
+                }, function(res) {
+                    if (res.statusCode != 200) {
+                        console.log(res.statusCode);
+                        return;
+                    }
+                    var body = '';
+                    res.on('data', function(chunk) {
+                        body += chunk;
+                    }).on('end', function() {
+                        data = JSON.parse(body)[1];
+                        parseListing(data);
+                        if (list.length > 0) setTimeout(scan_page_loop, 3000, list);
+                    });
+            }).end();
+        
+        }
+        setTimeout(scan_page_loop, 100, list.slice(10));
+    });
+}).end();
+
+
+function parseListing(listing) {
+    if (!listing) return array;
+    for (var i = 0; i < listing.data.children.length; i++) {
+        var child = listing.data.children[i];
+        
+        if (child.kind != 'more' && child.data.replies != "") {
+            var markdown = child.data.body;
+            var html = htmlutil.unescapeEntities(child.data.body_html).slice(16, -6);
+            var rendered = snuownd.getParser().render(htmlutil.unescapeEntities(markdown));
+            if (html != rendered) {
+                console.log(colors.RED, "RENDER ERROR", colors.RESET);
+                console.log("MARKDOWN:");
+                console.log(markdown);
+                console.log("REDDIT:");
+                console.log(colors.GREEN, JSON.stringify(html), colors.RESET);
+                console.log("SNUOWND:");
+                console.log(colors.RED, JSON.stringify(rendered), colors.RESET);
+                console.log();
+            }
+            // else console.log('okay');
+            if (child.data.replies) parseListing(child.data.replies);
+        }
+    }
 }
 
