@@ -31,7 +31,26 @@ var SnuOwnd = {};
 	function isalnum(c) { return /[A-Za-z0-9]/.test(c); }
 	function isalpha(c) { return /[A-Za-z]/.test(c); }
 	function ispunct(c) {return /[\x20-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]/.test(c); }
-	if (typeof encodeURIComponent == 'undefined' && typeof(require) != 'undefined') encodeURIComponent =  require('querystring').escape;
+
+	function urlHexCode(number) {
+		var hex_str = '0123456789ABCDEF';
+		return '%'+hex_str[(number&0xf0)>>4]+hex_str[(number&0x0f)>>0];
+	}
+	function escapeUTF8Char(char) {
+		var code = char.charCodeAt(0);
+		if (code < 0x80) {
+			return urlHexCode(code);
+		} else if((code > 0x7f) && (code < 0x0800)) {
+			var seq = urlHexCode(code >> 6 & 0xff | 0xc0);
+				seq += urlHexCode(code >> 0 & 0x3f | 0x80);
+			return seq;
+		} else {
+			var seq  = urlHexCode(code >> 12 & 0xff | 0xe0);
+				seq += urlHexCode(code >> 6 & 0x3f | 0x80);
+				seq += urlHexCode(code >> 0 & 0x3f | 0x80);
+			return seq;
+		}
+	}
 
 	function find_block_tag (str) {
 		var wordList = [
@@ -240,7 +259,7 @@ var SnuOwnd = {};
 
 					/* every other character goes with a %XX escaping */
 				default:
-					out.s += encodeURIComponent(src[i]);
+					out.s += escapeUTF8Char(src[i]);
 					/*
 					var cc = src.charCodeAt(i);
 					hex_str[1] = hex_chars[(cc >> 4) & 0xF];
