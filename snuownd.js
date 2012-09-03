@@ -1128,7 +1128,7 @@ exports.getTocCallbacks = getTocCallbacks;
 				 */
 				if (i >= text.s.length - 1) break;
 
-				defaultCallbacks.linebreak(out, options);
+				cb_linebreak(out, options);
 				i++;
 			}
 		} else {
