@@ -215,13 +215,13 @@ http.request({
             }).end();
         
         }
-        setTimeout(scan_page_loop, 100, list.slice(10));
+        setTimeout(scan_page_loop, 100, list);
     });
 }).end();
 
 
 function parseListing(listing) {
-    if (!listing) return array;
+    if (!listing) return;
     for (var i = 0; i < listing.data.children.length; i++) {
         var child = listing.data.children[i];
         
