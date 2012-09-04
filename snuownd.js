@@ -919,10 +919,11 @@ exports.createCustomRenderer = createCustomRenderer;
 
 /**
 Produces a renderer object that will match Reddit's output.
+@param {?Number=} flags A bitfield containing flags specific to the reddit HTML renderer. Passing undefined, null, or null value will produce reddit exact output.
 @returns {Renderer} A renderer object that will match Reddit's output.
 */
-function getRedditRenderer() {
-	return new Renderer(getRedditCallbacks() ,{
+function getRedditRenderer(flags) {
+	var renderer = new Renderer(getRedditCallbacks() ,{
 		nofollow: 0,
 		target: null,
 		tocData: {
@@ -930,7 +931,7 @@ function getRedditRenderer() {
 			currentLevel: 0,
 			levelOffset: 0
 		},
-		flags: HTML_SKIP_HTML | HTML_SKIP_IMAGES | HTML_SAFELINK | HTML_ESCAPE | HTML_USE_XHTML,
+		flags: (flags != undefined?flags:HTML_SKIP_HTML | HTML_SKIP_IMAGES | HTML_SAFELINK | HTML_ESCAPE | HTML_USE_XHTML),
 		/* extra callbacks */
 		//	void (*link_attributes)(struct buf *ob, const struct buf *url, void *self);
 		link_attributes: function link_attributes(out, url, options) {
@@ -942,6 +943,17 @@ function getRedditRenderer() {
 			}
 		}
 	});
+	if (renderer.context.flags & HTML_SKIP_IMAGES)
+		renderer.callbacks.image = null;
+
+	if (renderer.context.flags & HTML_SKIP_LINKS) {
+		renderer.callbacks.link = null;
+		renderer.callbacks.autolink = null;
+	}
+
+	if (renderer.context.flags & HTML_SKIP_HTML || renderer.context.flags & HTML_ESCAPE)
+		renderer.callbacks.blockhtml = null;
+	return renderer;
 }
 exports.getRedditRenderer = getRedditRenderer;
 
@@ -1517,7 +1529,7 @@ exports.getTocCallbacks = getTocCallbacks;
 	/* char_link - '[': parsing a link or an image */
 	function char_link(out, md, data_, offset) {
 		var data = data_.slice(offset);
-		var is_img = (offset && data[offset - 1] == '!'), level;
+		var is_img = (offset && data_[offset - 1] == '!'), level;
 		var i = 1, txt_e, link_b = 0, link_e = 0, title_b = 0, title_e = 0;
 		//4 bufs
 		var content = null;
@@ -1532,11 +1544,13 @@ exports.getTocCallbacks = getTocCallbacks;
 			md.spanStack.length = org_work_size;
 			return ret ? i : 0;
 		}
-
+		console.log(md);
 		/* checking whether the correct renderer exists */
-		if ((is_img && !md.callbacks.image) || (!is_img && !md.callbacks.link))
-			return cleanup();
-
+		if ((is_img && !md.callbacks.image) || (!is_img && !md.callbacks.link)){
+			console.log("IMGLINK");
+				return cleanup();
+		
+		}
 		/* looking for the matching closing bracket */
 		for (level = 1; i < data.length; i++) {
 			if (data[i] == '\n') text_has_nl = 1;
@@ -2044,12 +2058,14 @@ exports.getTocCallbacks = getTocCallbacks;
 		this.extensions = MKDEXT_NO_INTRA_EMPHASIS | MKDEXT_SUPERSCRIPT | MKDEXT_AUTOLINK | MKDEXT_STRIKETHROUGH | MKDEXT_TABLES;
 		var renderer = getRedditRenderer();
 		this.context = renderer.context;
+		this.callbacks = renderer.callbacks;
 		this.inLinkBody = 0;
 		this.activeChars = {};
 		this.refs = {};
+		this.nestingLimit = 16;
 	};
-	Markdown.prototype.callbacks =  getRedditCallbacks();
-	Markdown.prototype.nestingLimit = 16;
+	// Markdown.prototype.callbacks =  getRedditCallbacks();
+	// Markdown.prototype.nestingLimit = 16;
 
 
 	/* is_empty - returns the line length when it is empty, 0 otherwise */
