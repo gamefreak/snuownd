@@ -1544,13 +1544,10 @@ exports.getTocCallbacks = getTocCallbacks;
 			md.spanStack.length = org_work_size;
 			return ret ? i : 0;
 		}
-		console.log(md);
+
 		/* checking whether the correct renderer exists */
-		if ((is_img && !md.callbacks.image) || (!is_img && !md.callbacks.link)){
-			console.log("IMGLINK");
+		if ((is_img && !md.callbacks.image) || (!is_img && !md.callbacks.link))
 				return cleanup();
-		
-		}
 		/* looking for the matching closing bracket */
 		for (level = 1; i < data.length; i++) {
 			if (data[i] == '\n') text_has_nl = 1;
@@ -2064,8 +2061,6 @@ exports.getTocCallbacks = getTocCallbacks;
 		this.refs = {};
 		this.nestingLimit = 16;
 	};
-	// Markdown.prototype.callbacks =  getRedditCallbacks();
-	// Markdown.prototype.nestingLimit = 16;
 
 
 	/* is_empty - returns the line length when it is empty, 0 otherwise */
