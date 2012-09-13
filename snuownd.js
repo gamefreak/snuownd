@@ -24,7 +24,6 @@
 /**
 @module SnuOwnd
 */
-var SnuOwnd = {};
 (function(exports){
 	function _isspace(c) {return c == ' ' || c == '\n';}
 	function isspace(c) {return /\s/.test(c);}
@@ -3615,4 +3614,9 @@ exports.getTocCallbacks = getTocCallbacks;
 	exports.MKDA_NOT_AUTOLINK = MKDA_NOT_AUTOLINK;
 	exports.MKDA_NORMAL = MKDA_NORMAL;
 	exports.MKDA_EMAIL = MKDA_EMAIL;
-})(typeof(exports)!='undefined'?exports:SnuOwnd);
+
+	if (typeof define === 'function') {
+		define('snuownd', [], exports);
+	}
+})(typeof(exports)!=='undefined'?exports:typeof(window)!=='undefined'?window.SnuOwnd={}:{});
+
