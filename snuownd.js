@@ -1767,7 +1767,7 @@ exports.getTocCallbacks = getTocCallbacks;
 			if (md.callbacks.autolink && altype.p != MKDA_NOT_AUTOLINK) {
 				var u_link = new Buffer();
 				md.spanStack.push(u_link);
-				work.s = data.slice(1 , end - 2);
+				work.s = data.substr(1 , end - 2);
 				unscape_text(u_link, work);
 				ret = md.callbacks.autolink(out, u_link, altype.p, md.context);
 				md.spanStack.pop();
