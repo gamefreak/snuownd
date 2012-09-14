@@ -4,10 +4,28 @@
 	<title>SnuOwnd output tester</title>
 	<script type="text/javascript" src="snuownd.js"></script>
 	<style type="text/css">
-#html {
+
+#toc, #html {
+	width: 45%;
+	position: absolute;
+	overflow-y: scroll;
 	border: thin solid black;
-	min-height: 10em;
 	padding: 12px;
+}
+
+#toc {
+	left: 1em;
+	bottom: 1em;
+	height: 50%;
+	/*overflow-y: scroll;*/
+}
+#html {
+	/*position: absolute;*/
+	right: 1em;
+	
+	/*margin-left: 30em;*/
+	
+	height: 90%;
 }
 
 #html table {
@@ -18,19 +36,25 @@
 	border: thin solid lightgrey;
 }
 #markdown {
-	min-width: 40em;
-	min-height: 20em;
+	float:left;
+	min-width: 45em;
+	min-height: 25em;
+	height: 50%;
 }
 	</style>
 </head>
 <body>
 	<textarea id="markdown" width="40"></textarea>
 	<div id="html"></div>
+	<div id="toc"></div>
 		<script type="text/javascript">
 var parser = SnuOwnd.getParser();
+var tocParser = SnuOwnd.getParser(SnuOwnd.getTocRenderer());
 
 document.getElementById('markdown').addEventListener('input', function(e) {
+	document.getElementById('toc').innerHTML = tocParser.render(e.target.value);
 	document.getElementById('html').innerHTML = parser.render(e.target.value);
+
 });
 
 	</script>
