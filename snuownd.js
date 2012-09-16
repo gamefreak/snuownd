@@ -26,7 +26,7 @@
 */
 (function(exports){
 	function _isspace(c) {return c == ' ' || c == '\n';}
-	function isspace(c) {return /\s/.test(c);}
+	function isspace(c) {return /[\x09-\x0d ]/.test(c);}
 	function isalnum(c) { return /[A-Za-z0-9]/.test(c); }
 	function isalpha(c) { return /[A-Za-z]/.test(c); }
 	function ispunct(c) {return /[\x20-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]/.test(c); }
