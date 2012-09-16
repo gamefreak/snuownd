@@ -2,6 +2,7 @@
 
 var snuownd = require('./snuownd');
 var md = snuownd.getParser();
+var fs = require('fs');
 
 colors = {
 	BLACK: '\033[30m',
@@ -141,8 +142,7 @@ cases = {
         '<p><a href="/r/t:heatdeathoftheuniverse">/r/t:heatdeathoftheuniverse</a></p>\n',
 }
 
-
-console.log("Running Snuodwn test cases.");
+console.log("Running Snudown test cases.");
 var showSuccesses = false
 for (var text in cases) {
 
@@ -170,7 +170,7 @@ try {
 }
 
 
-console.log('Running tests against /r/all');
+console.log('Retrieving test data from /r/all');
 var http = require('http');
 http.request({
     host: 'www.reddit.com',
@@ -186,13 +186,15 @@ http.request({
     }).on('end', function() {
         // console.log('BODY', body);
         data = JSON.parse(body);
+        console.assert(data != null);
         var list = [];
         for (var i = 0; i < data.data.children.length; i++) {
             list.push(data.data.children[i]);
         }
+        var fullTable = {};
         function scan_page_loop(list) {
             var obj = list.shift();
-            console.log(obj.data.permalink);
+            console.log('GET[' + (25-list.length) + '/25]', obj.data.permalink);
             http.request({
                     host: 'www.reddit.com',
                     path: obj.data.permalink+'.json',
@@ -208,9 +210,14 @@ http.request({
                     res.on('data', function(chunk) {
                         body += chunk;
                     }).on('end', function() {
-                        data = JSON.parse(body)[1];
-                        parseListing(data);
-                        if (list.length > 0) setTimeout(scan_page_loop, 3000, list);
+                        data = JSON.parse(body);
+                        parseListing(data[0], fullTable);
+                        parseListing(data[1], fullTable);
+                        if (list.length > 0) {
+                            setTimeout(scan_page_loop, 2000, list);
+                        } else {
+                            finishRun(fullTable);
+                        }
                     });
             }).end();
         
@@ -219,29 +226,84 @@ http.request({
     });
 }).end();
 
-
-function parseListing(listing) {
-    if (!listing) return;
-    for (var i = 0; i < listing.data.children.length; i++) {
-        var child = listing.data.children[i];
-        
-        if (child.kind != 'more' && child.data.replies != "") {
-            var markdown = child.data.body;
-            var html = htmlutil.unescapeEntities(child.data.body_html).slice(16, -6);
-            var rendered = snuownd.getParser().render(htmlutil.unescapeEntities(markdown));
-            if (html != rendered) {
-                console.log(colors.RED, "RENDER ERROR", colors.RESET);
-                console.log("MARKDOWN:");
-                console.log(markdown);
-                console.log("REDDIT:");
-                console.log(colors.GREEN, JSON.stringify(html), colors.RESET);
-                console.log("SNUOWND:");
-                console.log(colors.RED, JSON.stringify(rendered), colors.RESET);
-                console.log();
-            }
-            // else console.log('okay');
-            if (child.data.replies) parseListing(child.data.replies);
+function parseListing(listing, table) {
+    if (listing == null || listing.kind !== 'Listing') return;
+    if (listing != null && listing.data != null && listing.data.children != null) {
+        for (var i = 0; i < listing.data.children.length; i++) {
+            parseComment(listing.data.children[i], table);
         }
     }
 }
 
+function parseComment(comment, table) {
+    if (comment.kind === 'more') return;
+    if (comment.kind === 't1') {
+        table[comment.data.name] = {
+            markdown: comment.data.body,
+            html: htmlutil.unescapeEntities(comment.data.body_html).slice(16, -6),
+            link: comment.data.link_id.match(/^t3_([a-z0-9]+)$/)[1]
+        };
+    } else if (comment.kind === 't3' && comment.data.is_self === true && comment.data.selftext.length > 0) {
+    
+        table[comment.data.name] = {
+            markdown: comment.data.selftext,
+            html: htmlutil.unescapeEntities(comment.data.selftext_html).slice(31, -20)
+        }
+    }
+    if (comment.data.replies) {
+        parseListing(comment.data.replies, table);
+    }
+}
+
+function calcURL(id, entry) {
+    var parts = id.match(/^(t[13])_([a-z0-9]+)$/);
+    if (parts[1] === 't3') {
+        return 'http://www.reddit.com/comments/' + parts[2] + '/';
+    } else if (parts[1] === 't1') {
+        return 'http://www.reddit.com/comments/' + entry.link + '/_/' + parts[2] + '/';
+    }
+}
+
+function checkOutput(id, entry) {
+    var rendered = snuownd.getParser().render(htmlutil.unescapeEntities(entry.markdown));
+    var html = entry.html;
+    if (html !== rendered) {
+        console.log(colors.RED, "RENDER ERROR", colors.RESET, calcURL(id, entry));
+        console.log("MARKDOWN:");
+        console.log(entry.markdown);
+        console.log(JSON.stringify(entry.markdown));
+        console.log("REDDIT:");
+        console.log(colors.GREEN, html, colors.RESET);
+        console.log(JSON.stringify(html));
+        console.log("SNUOWND:");
+        console.log(colors.RED, rendered, colors.RESET);
+        console.log(JSON.stringify(rendered));
+        console.log();
+    }
+}
+
+function finishRun(newTable) {
+    console.log('Testing against new data.');
+    // console.log(newTable);
+    for (var id in newTable) {
+        // console.log(id);
+        checkOutput(id, newTable[id]);
+    }
+    if (fs.existsSync('./testData.json')) {
+        console.log('Testing against old data.');
+        var data = fs.readFileSync('testData.json', 'utf-8');
+        var oldTable = JSON.parse(data);
+        for (var id in oldTable) {
+            checkOutput(id, oldTable[id]);
+        }
+        console.log('Merging data.');
+        for (var id in newTable) {
+            oldTable[id] = newTable[id];
+        }
+        console.log('Saving.');
+        fs.writeFileSync('testData.json', JSON.stringify(oldTable), 'utf-8');
+    } else {
+        console.log('Saving.');
+        fs.writeFileSync('testData.json', JSON.stringify(newTable), 'utf-8');
+    }
+}
