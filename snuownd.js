@@ -940,7 +940,7 @@
 			}
 		};
 	}
-
+	exports.defaultRenderState = defaultRenderState;
 	/**
 	Produces a renderer object that will match Reddit's output.
 	@param {?Number=} flags A bitfield containing flags specific to the reddit HTML renderer. Passing undefined, null, or null value will produce reddit exact output.
@@ -1382,7 +1382,7 @@
 	    var i = 1 + tagname.length;
 	    
 	    if(tagtype == HTML_TAG_CLOSE) {
-	    	out += '/';
+	    	out.s += '/';
 	        i += 1;
 	    }
 	    
@@ -1465,7 +1465,7 @@
 		var whitelist = options.html_element_whitelist;
 
 	    /* Items on the whitelist ignore all other flags and just output */
-		if (((options.lags & HTML_ALLOW_ELEMENT_WHITELIST) != 0) && whitelist) {
+		if (((options.flags & HTML_ALLOW_ELEMENT_WHITELIST) != 0) && whitelist) {
 		    for(var i = 0; whitelist[i]; i++) {
 		        var tagtype = sdhtml_is_tag(text.s, whitelist[i]);
 		        if(tagtype != HTML_TAG_NONE) {
@@ -2183,6 +2183,10 @@
 	var MKD_TABLE_ALIGN_CENTER = 3;
 	var MKD_TABLE_ALIGNMASK = 3;
 	var MKD_TABLE_HEADER = 4
+
+	var HTML_TAG_NONE = 0;
+	var HTML_TAG_OPEN = 1;
+	var HTML_TAG_CLOSE = 2;
 
 
 	/**
@@ -3760,6 +3764,8 @@
 	exports.HTML_HARD_WRAP = HTML_HARD_WRAP;
 	exports.HTML_USE_XHTML = HTML_USE_XHTML;
 	exports.HTML_ESCAPE = HTML_ESCAPE;
+	exports.HTML_ALLOW_ELEMENT_WHITELIST = HTML_ALLOW_ELEMENT_WHITELIST;
+
 	exports.MKDEXT_NO_INTRA_EMPHASIS = MKDEXT_NO_INTRA_EMPHASIS;
 	exports.MKDEXT_TABLES = MKDEXT_TABLES;
 	exports.MKDEXT_FENCED_CODE = MKDEXT_FENCED_CODE;
