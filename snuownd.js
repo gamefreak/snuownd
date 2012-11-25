@@ -1372,7 +1372,7 @@
 
 	// rndr_html_tag(struct buf *ob, const struct buf *text, void *opaque, char* tagname, char** whitelist, int tagtype)
 	//NOT A CALLBACK!
-	function rndr_html_tag(out, text, options, tagname, taglist, tagtype) {
+	function rndr_html_tag(out, text, options, tagname, whitelist, tagtype) {
 	    var x, z, in_str = 0, seen_equals = 0, done, reset;
 	    var attr = new Buffer()
 	    var c;
