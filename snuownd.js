@@ -2317,7 +2317,7 @@
 			/* strip all whitespace at the beginning and the end
 			 * of the {} block */
 			/*remember not to remove the +0, it helps me keep syncronised with snudown*/
-			while (syn > 0 && _isspace(data[syn_cursor+0])) {
+			while (syn_len > 0 && _isspace(data[syn_start+0])) {
 				syn_start++; syn_len--;
 			}
 
