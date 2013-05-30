@@ -19,7 +19,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-// up to date with commit 965d9ec5282aa238da7cd8fb170986218b438d6c
+// up to date with commit b6baacb79996cec794a20d3abcae51adec5cc3cd
 
 /**
 @module SnuOwnd
@@ -468,6 +468,14 @@
 
 			/* If we are linking to a multireddit, continue */
 		} while ( link_end < size && (data[link_end] == '+' || (allMinus && data[link_end] == '-')) && link_end++ );
+		if (link_end < size && data[link_end] == '/') {
+			while (link_end < size && (isalnum(data[link_end]) ||
+					data[link_end] == '_' ||
+					data[link_end] == '/' ||
+					data[link_end] == '-')) {
+				link_end++;
+			}
+		}
 		/* make the link */
 		link.s += data.slice(0, link_end);
 		rewind_p.p = 0;
@@ -490,9 +498,10 @@
 			return 0;
 		link_end += 1;
 
-		/* consume valid characters ([A-Za-z0-9_-]) until we run out */
+		/* consume valid characters ([A-Za-z0-9_-/]) until we run out */
 		while (link_end < size && (isalnum(data[link_end]) ||
 					data[link_end] == '_' ||
+					data[link_end] == '/' ||
 					data[link_end] == '-'))
 			link_end++;
 
