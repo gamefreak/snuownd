@@ -1551,7 +1551,7 @@
 		} else if (level < options.tocData.currentLevel) {
 			out.s += '</li>\n';
 			while (level < options.tocData.currentLevel) {
-				out.s += '</ul\n</li>\n';
+				out.s += '</ul>\n</li>\n';
 				options.tocData.currentLevel--;
 			}
 			out.s += '<li>\n';
