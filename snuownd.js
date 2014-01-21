@@ -1,7 +1,7 @@
 /**
- @preserve snuownd.js - javascript port of reddit's "snudown" markdown parser
- https://github.com/gamefreak/snuownd
- */
+ * @preserve snuownd.js - JavaScript port of reddit's "snudown" markdown parser
+ * https://github.com/gamefreak/snuownd
+*/
 /**
  * @license Copyright (c) 2009, Natacha Porté
  * Copyright (c) 2011, Vicent Marti
@@ -22,14 +22,14 @@
 // up to date with commit b6baacb79996cec794a20d3abcae51adec5cc3cd
 
 /**
-@module SnuOwnd
-*/
+ * @module SnuOwnd
+ */
 (function(exports){
-	function _isspace(c) {return c == ' ' || c == '\n';}
-	function isspace(c) {return /[\x09-\x0d ]/.test(c);}
+	function _isspace(c) { return c === ' ' || c === '\n'; }
+	function isspace(c) { return /[\x09-\x0d ]/.test(c); }
 	function isalnum(c) { return /[A-Za-z0-9]/.test(c); }
 	function isalpha(c) { return /[A-Za-z]/.test(c); }
-	function ispunct(c) {return /[\x20-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]/.test(c); }
+	function ispunct(c) { return /[\x20-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]/.test(c); }
 
 	function urlHexCode(number) {
 		var hex_str = '0123456789ABCDEF';
@@ -40,12 +40,12 @@
 		var code = char.charCodeAt(0);
 		if (code < 0x80) {
 			return urlHexCode(code);
-		} else if((code > 0x7f) && (code < 0x0800)) {
+		} else if ((code > 0x7f) && (code < 0x0800)) {
 			var seq = urlHexCode(code >> 6 & 0xff | 0xc0);
 				seq += urlHexCode(code >> 0 & 0x3f | 0x80);
 			return seq;
 		} else {
-			var seq  = urlHexCode(code >> 12 & 0xff | 0xe0);
+			var seq = urlHexCode(code >> 12 & 0xff | 0xe0);
 				seq += urlHexCode(code >> 6 & 0x3f | 0x80);
 				seq += urlHexCode(code >> 0 & 0x3f | 0x80);
 			return seq;
@@ -61,7 +61,7 @@
 			'h5', 'noscript', 'style', 'iframe',
 			'h4', 'ins', 'h3', 'h2'
 		];
-		if (wordList.indexOf(str.toLowerCase()) != -1) {
+		if (wordList.indexOf(str.toLowerCase()) !== -1) {
 			return str.toLowerCase();
 		}
 		return '';
@@ -72,11 +72,11 @@
 		var closed = 0;
 		var tag_size = tag_data.length;
 
-		if (tag_size < 3 || tag_data[0] != '<') return HTML_TAG_NONE;
+		if (tag_size < 3 || tag_data[0] !== '<') return HTML_TAG_NONE;
 
 		i = 1;
 
-		if (tag_data[i] == '/') {
+		if (tag_data[i] !== '/') {
 			closed = 1;
 			i++;
 		}
@@ -85,12 +85,12 @@
 		for (; i < tag_size; ++i, ++tagname_c) {
 			if (tagname_c >= tagname.length) break;
 
-			if (tag_data[i] != tagname[tagname_c]) return HTML_TAG_NONE;
+			if (tag_data[i] !== tagname[tagname_c]) return HTML_TAG_NONE;
 		}
 
-		if (i == tag_size) return HTML_TAG_NONE;
+		if (i === tag_size) return HTML_TAG_NONE;
 
-		if (isspace(tag_data[i]) || tag_data[i] == '>')
+		if (isspace(tag_data[i]) || tag_data[i] === '>')
 			return closed ? HTML_TAG_CLOSE : HTML_TAG_OPEN;
 
 		return HTML_TAG_NONE;
@@ -100,7 +100,7 @@
 		var i = 0, org;
 		while (i < src.s.length) {
 			org = i;
-			while (i < src.s.length && src.s[i] != '\\') i++;
+			while (i < src.s.length && src.s[i] !== '\\') i++;
 
 			if (i > org) out.s += src.s.slice(org, i);
 
@@ -156,9 +156,9 @@
 			if (i >= src.length) break;
 
 			/* The forward slash is only escaped in secure mode */
-			if (src[i] == '/' && !secure) {
+			if (src[i] === '/' && !secure) {
 				out.s += '/';
-			} else if (HTML_ESCAPE_TABLE[src.charCodeAt(i)] == 7) {
+			} else if (HTML_ESCAPE_TABLE[src.charCodeAt(i)] === 7) {
 				/* skip control characters */
 			} else {
 				out.s += HTML_ESCAPES[esc];
@@ -216,10 +216,9 @@
 	function escape_href(out, src) {
 		var  i = 0, org;
 
-
 		while (i < src.length) {
 			org = i;
-			while (i < src.length && HREF_SAFE[src.charCodeAt(i)] != 0) i++;
+			while (i < src.length && HREF_SAFE[src.charCodeAt(i)] !== 0) i++;
 
 			if (i > org) out.s += src.slice(org, i);
 
@@ -227,7 +226,7 @@
 			if (i >= src.length) break;
 
 			/* throw out control characters */
-			if (HREF_SAFE[src.charCodeAt(i)] == 2) {
+			if (HREF_SAFE[src.charCodeAt(i)] === 2) {
 				i++;
 				continue;
 			}
@@ -279,27 +278,27 @@
 		var i;
 
 		for (i = 0; i < link_end; ++i)
-			if (data[i] == '<') {
+			if (data[i] === '<') {
 				link_end = i;
 				break;
 			}
 
 		while (link_end > 0) {
-			if ('?!.,'.indexOf(data[link_end - 1]) != -1) link_end--;
+			if ('?!.,'.indexOf(data[link_end - 1]) !== -1) link_end--;
 
-			else if (data[link_end - 1] == ';') {
+			else if (data[link_end - 1] === ';') {
 				var new_end = link_end - 2;
 
 				while (new_end > 0 && isalpha(data[new_end])) new_end--;
 
-				if (new_end < link_end - 2 && data[new_end] == '&')
+				if (new_end < link_end - 2 && data[new_end] === '&')
 					link_end = new_end;
 				else link_end--;
 			}
 			else break;
 		}
 
-		if (link_end == 0) return 0;
+		if (link_end === 0) return 0;
 
 		cclose = data[link_end - 1];
 
@@ -311,7 +310,7 @@
 			case '}':	copen = '{'; break;
 		}
 
-		if (copen != 0) {
+		if (copen !== 0) {
 			var closing = 0;
 			var opening = 0;
 			var j = 0;
@@ -337,13 +336,13 @@
 			 */
 
 			while (j < link_end) {
-				if (data[j] == copen) opening++;
-				else if (data[j] == cclose) closing++;
+				if (data[j] === copen) opening++;
+				else if (data[j] === cclose) closing++;
 
 				j++;
 			}
 
-			if (closing != opening) link_end--;
+			if (closing !== opening) link_end--;
 		}
 
 		return link_end;
@@ -355,8 +354,8 @@
 		if (!isalnum(data[0])) return 0;
 
 		for (i = 1; i < data.length - 1; ++i) {
-			if (data[i] == '.') np++;
-			else if (!isalnum(data[i]) && data[i] != '-') break;
+			if (data[i] === '.') np++;
+			else if (!isalnum(data[i]) && data[i] !== '-') break;
 		}
 
 		/* a valid domain needs to have at least a dot.
@@ -384,7 +383,7 @@
 			var len = valid_uris[i].length;
 
 			if (link.length > len &&
-					link.toLowerCase().indexOf(valid_uris[i]) == 0 &&
+					link.toLowerCase().indexOf(valid_uris[i]) === 0 &&
 					/[A-Za-z0-9#\/?]/.test(link[len]))
 				return 1;
 		}
@@ -397,7 +396,7 @@
 		var data = data_.slice(offset);
 		var link_end, rewind = 0, domain_len;
 
-		if (size < 4 || data_[offset+1] != '/' || data_[offset+2] != '/') return 0;
+		if (size < 4 || data_[offset+1] !== '/' || data_[offset+2] !== '/') return 0;
 
 		while (rewind < offset && isalpha(data_[offset-rewind - 1])) rewind++;
 
@@ -405,14 +404,14 @@
 		link_end = "://".length;
 
 		domain_len = check_domain(data.slice(link_end), flags & SD_AUTOLINK_SHORT_DOMAINS);
-		if (domain_len == 0) return 0;
+		if (domain_len === 0) return 0;
 
 		link_end += domain_len;
 		while (link_end < size && !isspace(data_[offset+link_end])) link_end++;
 
 		link_end = autolink_delim(data, link_end);
 
-		if (link_end == 0) return 0;
+		if (link_end === 0) return 0;
 
 		//TODO
 		link.s += data_.substr(offset-rewind, link_end+rewind);
@@ -429,23 +428,23 @@
 		if (size < 3) return 0;
 
 		/* make sure this / is part of /r/ */
-		if (data.indexOf('/r/') != 0) return 0;
+		if (data.indexOf('/r/') !== 0) return 0;
 
 		link_end = "/r/".length;
-		if (data.substr(link_end-1, 4).toLowerCase() == "all-") {
+		if (data.substr(link_end - 1, 4).toLowerCase() === "all-") {
 			allMinus = true;
 		}
 		do {
 			var start = link_end;
 			var max_length = 24;
 			/* special case: /r/reddit.com (the only subreddit with a '.') */
-			if ( size >= link_end+10 && data.substr(link_end, 10).toLowerCase() == 'reddit.com') {
+			if (size >= link_end + 10 && data.substr(link_end, 10).toLowerCase() === 'reddit.com') {
 				link_end += 10;
 				max_length = 10;
 			} else {
 				/* If not the special case make sure it starts with (t:)?[A-Za-z0-9] */
 				/* support autolinking to timereddits, /r/t:when (1 April 2012) */
-				if ( size > link_end+2 && data.substr(link_end, 2) == 't:')
+				if (size > link_end + 2 && data.substr(link_end, 2) === 't:')
 					link_end += 2;  /* Jump over the 't:' */
 
 				/* the first character of a subreddit name must be a letter or digit */
@@ -456,23 +455,24 @@
 
 			/* consume valid characters ([A-Za-z0-9_]) until we run out */
 			while (link_end < size && (isalnum(data[link_end]) ||
-								data[link_end] == '_'))
+					data[link_end] !== '_'))
 				link_end++;
 
 			/* valid subreddit names are between 3 and 21 characters, with
 			 * some subreddits having 2-character names. Don't bother with
 			 * autolinking for anything outside this length range.
 			 * (chksrname function in reddit/.../validator.py) */
-			if ( link_end-start < 2 || link_end-start > max_length )
+			if (link_end-start < 2 || link_end-start > max_length)
 				return 0;
 
 			/* If we are linking to a multireddit, continue */
-		} while ( link_end < size && (data[link_end] == '+' || (allMinus && data[link_end] == '-')) && link_end++ );
-		if (link_end < size && data[link_end] == '/') {
+		} while (link_end < size && (data[link_end] === '+' || (allMinus && data[link_end] === '-')) && link_end++);
+
+		if (link_end < size && data[link_end] === '/') {
 			while (link_end < size && (isalnum(data[link_end]) ||
-					data[link_end] == '_' ||
-					data[link_end] == '/' ||
-					data[link_end] == '-')) {
+					data[link_end] === '_' ||
+					data[link_end] === '/' ||
+					data[link_end] === '-')) {
 				link_end++;
 			}
 		}
@@ -490,19 +490,19 @@
 		if (size < 6) return 0;
 
 		/* make sure this / is part of /u/ */
-		if (data.indexOf('/u/') != 0) return 0;
+		if (data.indexOf('/u/') !== 0) return 0;
 
 		/* the first letter of a username must... well, be valid, we don't care otherwise */
 		link_end = "/u/".length;
-		if (!isalnum(data[link_end]) && data[link_end] != '_' && data[link_end] != '-')
+		if (!isalnum(data[link_end]) && data[link_end] !== '_' && data[link_end] !== '-')
 			return 0;
 		link_end += 1;
 
 		/* consume valid characters ([A-Za-z0-9_-/]) until we run out */
 		while (link_end < size && (isalnum(data[link_end]) ||
-					data[link_end] == '_' ||
-					data[link_end] == '/' ||
-					data[link_end] == '-'))
+					data[link_end] === '_' ||
+					data[link_end] === '/' ||
+					data[link_end] === '-'))
 			link_end++;
 
 		/* make the link */
@@ -520,30 +520,29 @@
 		for (rewind = 0; rewind < offset; ++rewind) {
 			var c = data_[offset-rewind - 1];
 			if (isalnum(c)) continue;
-			if (".+-_".indexOf(c) != -1) continue;
+			if (".+-_".indexOf(c) !== -1) continue;
 			break;
 		}
 
-		if (rewind == 0) return 0;
+		if (rewind === 0) return 0;
 
 		for (link_end = 0; link_end < size; ++link_end) {
-			var c = data_[offset+link_end];
+			var c = data_[offset + link_end];
 
 			if (isalnum(c)) continue;
 
-			if (c == '@') nb++;
-			else if (c == '.' && link_end < size - 1) np++;
-			else if (c != '-' && c != '_') break;
+			if (c === '@') nb++;
+			else if (c === '.' && link_end < size - 1) np++;
+			else if (c !== '-' && c !== '_') break;
 		}
 
-		if (link_end < 2 || nb != 1 || np == 0) return 0;
+		if (link_end < 2 || nb !== 1 || np === 0) return 0;
 
 		//TODO
 		link_end = autolink_delim(data, link_end);
 
-		if (link_end == 0) return 0;
+		if (link_end === 0) return 0;
 
-		// link.s += data_.slice(offset - rewind, link_end + rewind
 		link.s += data_.substr(offset - rewind, link_end + rewind);
 		rewind_p.p = rewind;
 
@@ -554,22 +553,22 @@
 		var data = data_.slice(offset);
 		var link_end;
 
-		if (offset > 0 && !ispunct(data_[offset-1]) && !isspace(data_[offset-1]))
+		if (offset > 0 && !ispunct(data_[offset - 1]) && !isspace(data_[offset - 1]))
 			return 0;
 
-		// if (size < 4 || memcmp(data, "www.", strlen("www.")) != 0)
-		if (size < 4 || (data.slice(0,4) != 'www.')) return 0;
+		// if (size < 4 || memcmp(data, "www.", strlen("www.")) !== 0)
+		if (size < 4 || (data.slice(0, 4) !== 'www.')) return 0;
 
 		link_end = check_domain(data, 0);
 
-		if (link_end == 0)
+		if (link_end === 0)
 			return 0;
 
 		while (link_end < size && !isspace(data[link_end])) link_end++;
 
 		link_end = autolink_delim(data, link_end);
 
-		if (link_end == 0) return 0;
+		if (link_end === 0) return 0;
 
 		link.s += data.slice(0, link_end);
 		rewind_p.p = 0;
@@ -939,7 +938,7 @@
 			html_element_whitelist: DEFAULT_HTML_ELEMENT_WHITELIST,
 			html_attr_whitelist: DEFAULT_HTML_ATTR_WHITELIST,
 			flags: 0,
-			//(flags != undefined?flags:HTML_SKIP_HTML | HTML_SKIP_IMAGES | HTML_SAFELINK | HTML_ESCAPE | HTML_USE_XHTML),
+			//(flags !== undefined?flags:HTML_SKIP_HTML | HTML_SKIP_IMAGES | HTML_SAFELINK | HTML_ESCAPE | HTML_USE_XHTML),
 			/* extra callbacks */
 			//	void (*link_attributes)(struct buf *ob, const struct buf *url, void *self);
 			link_attributes: function link_attributes(out, url, options) {
@@ -959,7 +958,7 @@
 	@returns {Renderer} A renderer object that will match Reddit's output.
 	*/
 	function getRedditRenderer(flags) {
-		var state =defaultRenderState();
+		var state = defaultRenderState();
 		if (flags == null) {
 			state.flags = DEFAULT_BODY_FLAGS;
 		} else {
@@ -1093,7 +1092,7 @@
 					var org = i;
 					while (i < lang.s.length && !isspace(lang.s[i])) i++;
 
-					if (lang.s[org] == '.') org++;
+					if (lang.s[org] === '.') org++;
 
 					if (cls) out.s += ' ';
 					escape_html(out, lang.s.slice(org, i), false);
@@ -1122,9 +1121,9 @@
 		var org, sz;
 		if (!text) return;
 		sz = text.s.length;
-		while (sz > 0 && text.s[sz - 1] == '\n') sz--;
+		while (sz > 0 && text.s[sz - 1] === '\n') sz--;
 		org = 0;
-		while (org < sz && text.s[org] == '\n') org++;
+		while (org < sz && text.s[org] === '\n') org++;
 		if (org >= sz) return;
 		if (out.s.length) out.s += '\n';
 		out.s += text.s.slice(org, sz);
@@ -1166,7 +1165,7 @@
 		out.s += '<li>';
 		if (text) {
 			var size = text.s.length;
-			while (size && text.s[size - 1] == '\n') size--;
+			while (size && text.s[size - 1] === '\n') size--;
 			out.s += text.s.slice(0, size);
 		}
 		out.s += '</li>\n';
@@ -1182,14 +1181,14 @@
 
 		while (i < text.s.length && isspace(text.s[i])) i++;
 
-		if (i == text.s.length) return;
+		if (i === text.s.length) return;
 
 		out.s += '<p>';
 		if (options.flags & HTML_HARD_WRAP) {
 			var org;
 			while (i < text.s.length) {
 				org = i;
-				while (i < text.s.length && text.data[i] != '\n')
+				while (i < text.s.length && text.data[i] !== '\n')
 					i++;
 
 				if (i > org) out.s += text.s.slice(org, i);
@@ -1266,12 +1265,12 @@
 
 		if (!link || !link.s.length) return 0;
 
-		if ((options.flags & HTML_SAFELINK) != 0 &&
-				!sd_autolink_issafe(link.s) && type != MKDA_EMAIL)
+		if ((options.flags & HTML_SAFELINK) !== 0 &&
+				!sd_autolink_issafe(link.s) && type !== MKDA_EMAIL)
 			return 0;
 
 		out.s += '<a href="';
-		if (type == MKDA_EMAIL) out.s += 'mailto:';
+		if (type === MKDA_EMAIL) out.s += 'mailto:';
 		escape_href(out, link.s.slice(offset));
 
 		if (options.link_attributes) {
@@ -1348,7 +1347,7 @@
 
 	// int (*link)(struct buf *ob, const struct buf *link, const struct buf *title, const struct buf *content, void *opaque);
 	function cb_link(out, link, title, content, options) {
-		if (link != null && (options.flags & HTML_SAFELINK) != 0 && !sd_autolink_issafe(link.s)) return 0;
+		if (link != null && (options.flags & HTML_SAFELINK) !== 0 && !sd_autolink_issafe(link.s)) return 0;
 
 		out.s += '<a href="';
 
@@ -1383,14 +1382,14 @@
 	    
 	    var i = 1 + tagname.length;
 	    
-	    if(tagtype == HTML_TAG_CLOSE) {
+	    if(tagtype === HTML_TAG_CLOSE) {
 	    	out.s += '/';
 	        i += 1;
 	    }
 	    
 	    out.s += tagname;
 	    
-	    if(tagtype != HTML_TAG_CLOSE) {
+	    if(tagtype !== HTML_TAG_CLOSE) {
 	        for(;i < text.s.length; i++) {
 	            c = text.s[i];
 	            done = 0;
@@ -1409,7 +1408,7 @@
 	                case '"':
 	                    if(!in_str)
 	                        in_str = c;
-	                    else if(in_str == c)
+	                    else if(in_str === c)
 	                        in_str = !in_str;
 	                    break;
 	                default:
@@ -1427,13 +1426,13 @@
 	                                    reset = 1;
 	                                } else {
 	                                    for(z=0; z < whitelist.length; z++) {
-	                                        if(whitelist[z].length != attr.s.length)
+	                                        if(whitelist[z].length !== attr.s.length)
 	                                            continue;
 	                                        for(x=0;x < attr.s.length; x++) {
-	                                            if(whitelist[z][x].toLowerCase() != attr.s[x].toLowerCase())
+	                                            if(whitelist[z][x].toLowerCase() !== attr.s[x].toLowerCase())
 	                                                break;
 	                                        }
-	                                        if(x == attr.s.length)
+	                                        if(x === attr.s.length)
 	                                            seen_equals = 1;
 	                                    }
 	                                    if(!seen_equals)
@@ -1467,10 +1466,10 @@
 		var whitelist = options.html_element_whitelist;
 
 	    /* Items on the whitelist ignore all other flags and just output */
-		if (((options.flags & HTML_ALLOW_ELEMENT_WHITELIST) != 0) && whitelist) {
+		if (((options.flags & HTML_ALLOW_ELEMENT_WHITELIST) !== 0) && whitelist) {
 		    for(var i = 0; whitelist[i]; i++) {
 		        var tagtype = sdhtml_is_tag(text.s, whitelist[i]);
-		        if(tagtype != HTML_TAG_NONE) {
+		        if(tagtype !== HTML_TAG_NONE) {
 		            rndr_html_tag(out, text, options, whitelist[i], options.html_attr_whitelist, tagtype);
 		            return 1;
 		        }
@@ -1479,22 +1478,22 @@
 
 		/* HTML_ESCAPE overrides SKIP_HTML, SKIP_STYLE, SKIP_LINKS and SKIP_IMAGES
 		 * It doens't see if there are any valid tags, just escape all of them. */
-		if((options.flags & HTML_ESCAPE) != 0) {
+		if((options.flags & HTML_ESCAPE) !== 0) {
 			escape_html(out, text.s, false);
 			return 1;
 		}
 
-		if ((options.flags & HTML_SKIP_HTML) != 0) return 1;
+		if ((options.flags & HTML_SKIP_HTML) !== 0) return 1;
 
-		if ((options.flags & HTML_SKIP_STYLE) != 0 &&
+		if ((options.flags & HTML_SKIP_STYLE) !== 0 &&
 				sdhtml_is_tag(text.s, "style"))
 			return 1;
 
-		if ((options.flags & HTML_SKIP_LINKS) != 0 &&
+		if ((options.flags & HTML_SKIP_LINKS) !== 0 &&
 				sdhtml_is_tag(text.s, "a"))
 			return 1;
 
-		if ((options.flags & HTML_SKIP_IMAGES) != 0 &&
+		if ((options.flags & HTML_SKIP_IMAGES) !== 0 &&
 				sdhtml_is_tag(text.s, "img"))
 			return 1;
 
@@ -1612,24 +1611,24 @@
 		var c = data[0];
 		var ret;
 
-		if (size > 2 && data[1] != c) {
+		if (size > 2 && data[1] !== c) {
 			/* whitespace cannot follow an opening emphasis;
 			 * strikethrough only takes two characters '~~' */
-			if (c == '~' || _isspace(data[1]) || (ret = parse_emph1(out, md, data, c)) == 0)
+			if (c === '~' || _isspace(data[1]) || (ret = parse_emph1(out, md, data, c)) === 0)
 				return 0;
 
 			return ret + 1;
 		}
 
-		if (data.length > 3 && data[1] == c && data[2] != c) {
-			if (_isspace(data[2]) || (ret = parse_emph2(out, md, data, c)) == 0)
+		if (data.length > 3 && data[1] === c && data[2] !== c) {
+			if (_isspace(data[2]) || (ret = parse_emph2(out, md, data, c)) === 0)
 				return 0;
 
 			return ret + 2;
 		}
 
-		if (data.length > 4 && data[1] == c && data[2] == c && data[3] != c) {
-			if (c == '~' || _isspace(data[3]) || (ret = parse_emph3(out, md, data, c)) == 0)
+		if (data.length > 4 && data[1] === c && data[2] === c && data[3] !== c) {
+			if (c === '~' || _isspace(data[3]) || (ret = parse_emph3(out, md, data, c)) === 0)
 				return 0;
 
 			return ret + 3;
@@ -1638,19 +1637,19 @@
 		return 0;
 	}
 
-	/* char_codespan - '`' parsing a code span (assuming codespan != 0) */
+	/* char_codespan - '`' parsing a code span (assuming codespan !== 0) */
 	function char_codespan(out, md, data_, offset) {
 		var data = data_.slice(offset);
 		var end, nb = 0, i, f_begin, f_end;
 
 		/* counting the number of backticks in the delimiter */
-		while (nb < data.length && data[nb] == '`')
+		while (nb < data.length && data[nb] === '`')
 			nb++;
 
 		/* finding the next delimiter */
 		i = 0;
 		for (end = nb; end < data.length && i < nb; end++) {
-			if (data[end] == '`') i++;
+			if (data[end] === '`') i++;
 			else i = 0;
 		}
 
@@ -1659,10 +1658,10 @@
 
 		/* trimming outside whitespaces */
 		f_begin = nb;
-		while (f_begin < end && data[f_begin] == ' ') f_begin++;
+		while (f_begin < end && data[f_begin] === ' ') f_begin++;
 
 		f_end = end - nb;
-		while (f_end > nb && data[f_end-1] == ' ') f_end--;
+		while (f_end > nb && data[f_end-1] === ' ') f_end--;
 
 		/* real code span */
 		if (f_begin < f_end) {
@@ -1677,15 +1676,15 @@
 		return end;
 	}
 
-	/* char_linebreak - '\n' preceded by two spaces (assuming linebreak != 0) */
+	/* char_linebreak - '\n' preceded by two spaces (assuming linebreak !== 0) */
 	function char_linebreak(out, md, data_, offset) {
 		var data = data_.slice(offset);
-		if (offset < 2 || data_[offset-1] != ' ' || data_[offset-2] != ' ')
+		if (offset < 2 || data_[offset-1] !== ' ' || data_[offset-2] !== ' ')
 			return 0;
 
 		/* removing the last space from ob and rendering */
 		var len = out.s.length;
-		while (len && out.s[len - 1] == ' ') len--;
+		while (len && out.s[len - 1] === ' ') len--;
 		out.s = out.s.slice(0, len);
 
 		return md.callbacks.linebreak(out, md.context) ? 1 : 0;
@@ -1694,7 +1693,7 @@
 	/* char_link - '[': parsing a link or an image */
 	function char_link(out, md, data_, offset) {
 		var data = data_.slice(offset);
-		var is_img = (offset && data_[offset - 1] == '!'), level;
+		var is_img = (offset && data_[offset - 1] === '!'), level;
 		var i = 1, txt_e, link_b = 0, link_e = 0, title_b = 0, title_e = 0;
 		//4 bufs
 		var content = null;
@@ -1715,10 +1714,10 @@
 				return cleanup();
 		/* looking for the matching closing bracket */
 		for (level = 1; i < data.length; i++) {
-			if (data[i] == '\n') text_has_nl = 1;
-			else if (data[i - 1] == '\\') continue;
-			else if (data[i] == '[') level++;
-			else if (data[i] == ']') {
+			if (data[i] === '\n') text_has_nl = 1;
+			else if (data[i - 1] === '\\') continue;
+			else if (data[i] === '[') level++;
+			else if (data[i] === ']') {
 				level--;
 				if (level <= 0) break;
 			}
@@ -1734,7 +1733,7 @@
 		while (i < data.length && _isspace(data[i])) i++;
 
 		/* inline style link */
-		if (i < data.length && data[i] == '(') {
+		if (i < data.length && data[i] === '(') {
 			/* skipping initial whitespace */
 			i++;
 
@@ -1744,9 +1743,9 @@
 
 			/* looking for link end: ' " ) */
 			while (i < data.length) {
-				if (data[i] == '\\') i += 2;
-				else if (data[i] == ')') break;
-				else if (i >= 1 && _isspace(data[i-1]) && (data[i] == '\'' || data[i] == '"')) break;
+				if (data[i] === '\\') i += 2;
+				else if (data[i] === ')') break;
+				else if (i >= 1 && _isspace(data[i-1]) && (data[i] === '\'' || data[i] === '"')) break;
 				else i++;
 			}
 
@@ -1754,16 +1753,16 @@
 			link_e = i;
 
 			/* looking for title end if present */
-			if (data[i] == '\'' || data[i] == '"') {
+			if (data[i] === '\'' || data[i] === '"') {
 				qtype = data[i];
 				in_title = 1;
 				i++;
 				title_b = i;
 
 				while (i < data.length) {
-					if (data[i] == '\\') i += 2;
-					else if (data[i] == qtype) {in_title = 0; i++;}
-					else if ((data[i] == ')') && !in_title) break;
+					if (data[i] === '\\') i += 2;
+					else if (data[i] === qtype) {in_title = 0; i++;}
+					else if ((data[i] === ')') && !in_title) break;
 					else i++;
 				}
 
@@ -1774,7 +1773,7 @@
 				while (title_e > title_b && _isspace(data[title_e])) title_e--;
 
 				/* checking for closing quote presence */
-				if (data[title_e] != '\'' &&  data[title_e] != '"') {
+				if (data[title_e] !== '\'' &&  data[title_e] !== '"') {
 					title_b = title_e = 0;
 					link_e = i;
 				}
@@ -1784,8 +1783,8 @@
 			while (link_e > link_b && _isspace(data[link_e - 1])) link_e--;
 
 			/* remove optional angle brackets around the link */
-			if (data[link_b] == '<') link_b++;
-			if (data[link_e - 1] == '>') link_e--;
+			if (data[link_b] === '<') link_b++;
+			if (data[link_e - 1] === '>') link_e--;
 
 			/* building escaped link and title */
 			if (link_e > link_b) {
@@ -1804,28 +1803,28 @@
 		}
 
 		/* reference style link */
-		else if (i < data.length && data[i] == '[') {
+		else if (i < data.length && data[i] === '[') {
 			var id = new Buffer();
 			var lr = null;
 
 			/* looking for the id */
 			i++;
 			link_b = i;
-			while (i < data.length && data[i] != ']') i++;
+			while (i < data.length && data[i] !== ']') i++;
 			if (i >= data.length) return cleanup();
 			link_e = i;
 
 			/* finding the link_ref */
-			if (link_b == link_e) {
+			if (link_b === link_e) {
 				if (text_has_nl) {
 					var b = new Buffer();
 					md.spanStack.push(b);
 					var j;
 
 					for (j = 1; j < txt_e; j++) {
-						if (data[j] != '\n')
+						if (data[j] !== '\n')
 							b.s += data[j];
-						else if (data[j - 1] != ' ')
+						else if (data[j - 1] !== ' ')
 							b.s += ' ';
 					}
 
@@ -1859,8 +1858,8 @@
 
 				var j;
 				for (j = 1; j < txt_e; j++) {
-					if (data[j] != '\n') b.s += data[j];
-					else if (data[j - 1] != ' ') b.s += ' ';
+					if (data[j] !== '\n') b.s += data[j];
+					else if (data[j - 1] !== ' ') b.s += ' ';
 				}
 
 				id.s = b.s;
@@ -1905,7 +1904,7 @@
 
 		/* calling the relevant rendering function */
 		if (is_img) {
-			if (out.s.length && out.s[out.s.length - 1] == '!')
+			if (out.s.length && out.s[out.s.length - 1] === '!')
 				out.s = out.s.slice(0, -1);
 
 			ret = md.callbacks.image(out, u_link, title, content, md.context);
@@ -1930,7 +1929,7 @@
 		var ret = 0;
 
 		if (end > 2) {
-			if (md.callbacks.autolink && altype.p != MKDA_NOT_AUTOLINK) {
+			if (md.callbacks.autolink && altype.p !== MKDA_NOT_AUTOLINK) {
 				var u_link = new Buffer();
 				md.spanStack.push(u_link);
 				work.s = data.substr(1 , end - 2);
@@ -1954,14 +1953,14 @@
 		var work = new Buffer();
 
 		if (data.length > 1) {
-			if (escape_chars.indexOf(data[1]) == -1) return 0;
+			if (escape_chars.indexOf(data[1]) === -1) return 0;
 
 			if (md.callbacks.normal_text) {
 				work.s = data[1];
 				md.callbacks.normal_text(out, work, md.context);
 			}
 			else out.s += data[1];
-		} else if (data.length == 1) {
+		} else if (data.length === 1) {
 			out.s += data[0];
 		}
 
@@ -1977,11 +1976,11 @@
 		var end = 1;
 		var work = new Buffer();
 
-		if (end < data.length && data[end] == '#') end++;
+		if (end < data.length && data[end] === '#') end++;
 
 		while (end < data.length && isalnum(data[end])) end++;
 
-		if (end < data.length && data[end] == ';') end++; /* real entity */
+		if (end < data.length && data[end] === ';') end++; /* real entity */
 		else return 0; /* lone '&' */
 
 		if (md.callbacks.entity) {
@@ -2099,19 +2098,19 @@
 
 		if (size < 2) return 0;
 
-		if (data[1] == '(') {
+		if (data[1] === '(') {
 			sup_start = sup_len = 2;
 
-			while (sup_len < size && data[sup_len] != ')' && data[sup_len - 1] != '\\') sup_len++;
+			while (sup_len < size && data[sup_len] !== ')' && data[sup_len - 1] !== '\\') sup_len++;
 
-			if (sup_len == size) return 0;
+			if (sup_len === size) return 0;
 		} else {
 			sup_start = sup_len = 1;
 
 			while (sup_len < size && !_isspace(data[sup_len])) sup_len++;
 		}
 
-		if (sup_len - sup_start == 0) return (sup_start == 2) ? 3 : 0;
+		if (sup_len - sup_start === 0) return (sup_start === 2) ? 3 : 0;
 
 		sup = new Buffer();
 		md.spanStack.push(sup);
@@ -2119,7 +2118,7 @@
 		md.callbacks.superscript(out, sup, md.context);
 		md.spanStack.pop();
 
-		return (sup_start == 2) ? sup_len + 1 : sup_len;
+		return (sup_start === 2) ? sup_len + 1 : sup_len;
 	}
 
 
@@ -2235,8 +2234,8 @@
 	/* is_empty - returns the line length when it is empty, 0 otherwise */
 	function is_empty(data) {
 		var i;
-		for (i = 0; i < data.length && data[i] != '\n'; i++)
-			if (data[i] != ' ') return 0;
+		for (i = 0; i < data.length && data[i] !== '\n'; i++)
+			if (data[i] !== ' ') return 0;
 
 		return i + 1;
 	}
@@ -2249,20 +2248,20 @@
 
 		/* skipping initial spaces */
 		if (data.length < 3) return 0;
-		if (data[0] == ' ') { i++;
-		if (data[1] == ' ') { i++;
-		if (data[2] == ' ') { i++; } } }
+		if (data[0] === ' ') { i++;
+		if (data[1] === ' ') { i++;
+		if (data[2] === ' ') { i++; } } }
 
 		/* looking at the hrule uint8_t */
 		if (i + 2 >= data.length
-				|| (data[i] != '*' && data[i] != '-' && data[i] != '_'))
+				|| (data[i] !== '*' && data[i] !== '-' && data[i] !== '_'))
 			return 0;
 		c = data[i];
 
 		/* the whole line must be the char or whitespace */
-		while (i < data.length && data[i] != '\n') {
-			if (data[i] == c) n++;
-			else if (data[i] != ' ')
+		while (i < data.length && data[i] !== '\n') {
+			if (data[i] === c) n++;
+			else if (data[i] !== ' ')
 				return 0;
 
 			i++;
@@ -2280,18 +2279,18 @@
 
 		/* skipping initial spaces */
 		if (data.length < 3) return 0;
-		if (data[0] == ' ') { i++;
-		if (data[1] == ' ') { i++;
-		if (data[2] == ' ') { i++; } } }
+		if (data[0] === ' ') { i++;
+		if (data[1] === ' ') { i++;
+		if (data[2] === ' ') { i++; } } }
 
 		/* looking at the hrule uint8_t */
-		if (i + 2 >= data.length || !(data[i] == '~' || data[i] == '`'))
+		if (i + 2 >= data.length || !(data[i] === '~' || data[i] === '`'))
 			return 0;
 
 		c = data[i];
 
 		/* the whole line must be the uint8_t or whitespace */
-		while (i < data.length && data[i] == c) {
+		while (i < data.length && data[i] === c) {
 			n++; i++;
 		}
 
@@ -2304,23 +2303,23 @@
 	function is_codefence(data, syntax) {
 		var i = 0, syn_len = 0;
 		i = prefix_codefence(data);
-		if (i == 0) return 0;
+		if (i === 0) return 0;
 
 
-		while (i < data.length && data[i] == ' ') i++;
+		while (i < data.length && data[i] === ' ') i++;
 
 		var syn_start;
 		//syn_start = data + i;
 		syn_start = i;
 
-		if (i < data.length && data[i] == '{') {
+		if (i < data.length && data[i] === '{') {
 			i++; syn_start++;
 
-			while (i < data.length && data[i] != '}' && data[i] != '\n') {
+			while (i < data.length && data[i] !== '}' && data[i] !== '\n') {
 				syn_len++; i++;
 			}
 
-			if (i == data.length || data[i] != '}')
+			if (i === data.length || data[i] !== '}')
 				return 0;
 
 			/* strip all whitespace at the beginning and the end
@@ -2344,7 +2343,7 @@
 		if (syntax) syntax.s = data.substr(syn_start, syn_len);
 		// syntax->size = syn;
 
-		while (i < data.length && data[i] != '\n') {
+		while (i < data.length && data[i] !== '\n') {
 			if (!_isspace(data[i])) return 0;
 
 			i++;
@@ -2357,25 +2356,25 @@
 	function find_emph_char(data, c) {
 		var i = 1;
 		while (i < data.length) {
-			while (i < data.length && data[i] != c && data[i] != '`' && data[i] != '[')
+			while (i < data.length && data[i] !== c && data[i] !== '`' && data[i] !== '[')
 				i++;
 
-			if (i == data.length) return 0;
+			if (i === data.length) return 0;
 
-			if (data[i] == c)
+			if (data[i] === c)
 				return i;
 
 			/* not counting escaped chars */
-			if (i && data[i - 1] == '\\') {
+			if (i && data[i - 1] === '\\') {
 				i++; continue;
 			}
 
-			if (data[i] == '`') {
+			if (data[i] === '`') {
 				var span_nb = 0, bt;
 				var tmp_i = 0;
 
 				/* counting the number of opening backticks */
-				while (i < data.length && data[i] == '`') {
+				while (i < data.length && data[i] === '`') {
 					i++; span_nb++;
 				}
 
@@ -2384,8 +2383,8 @@
 				/* finding the matching closing sequence */
 				bt = 0;
 				while (i < data.length && bt < span_nb) {
-					if (!tmp_i && data[i] == c) tmp_i = i;
-					if (data[i] == '`') bt++;
+					if (!tmp_i && data[i] === c) tmp_i = i;
+					if (data[i] === '`') bt++;
 					else bt = 0;
 					i++;
 				}
@@ -2393,18 +2392,18 @@
 				if (i >= data.length) return tmp_i;
 			}
 			/* skipping a link */
-			else if (data[i] == '[') {
+			else if (data[i] === '[') {
 				var tmp_i = 0;
 				var cc;
 
 				i++;
-				while (i < data.length && data[i] != ']') {
-					if (!tmp_i && data[i] == c) tmp_i = i;
+				while (i < data.length && data[i] !== ']') {
+					if (!tmp_i && data[i] === c) tmp_i = i;
 					i++;
 				}
 
 				i++;
-				while (i < data.length && (data[i] == ' ' || data[i] == '\n'))
+				while (i < data.length && (data[i] === ' ' || data[i] === '\n'))
 					i++;
 
 				if (i >= data.length) return tmp_i;
@@ -2424,8 +2423,8 @@
 				}
 
 				i++;
-				while (i < data.length && data[i] != cc) {
-					if (!tmp_i && data[i] == c) tmp_i = i;
+				while (i < data.length && data[i] !== cc) {
+					if (!tmp_i && data[i] === c) tmp_i = i;
 					i++;
 				}
 
@@ -2447,7 +2446,7 @@
 		if (!md.callbacks.emphasis) return 0;
 
 		/* skipping one symbol if coming from emph3 */
-		if (data.length > 1 && data[0] == c && data[1] == c) i = 1;
+		if (data.length > 1 && data[0] === c && data[1] === c) i = 1;
 
 		while (i < data.length) {
 			len = find_emph_char(data.slice(i), c);
@@ -2455,9 +2454,9 @@
 			i += len;
 			if (i >= data.length) return 0;
 
-			if (data[i] == c && !_isspace(data[i - 1])) {
-				if ((md.extensions & MKDEXT_NO_INTRA_EMPHASIS) && (c == '_')) {
-					if (!(i + 1 == data.length || _isspace(data[i + 1]) || ispunct(data[i + 1])))
+			if (data[i] === c && !_isspace(data[i - 1])) {
+				if ((md.extensions & MKDEXT_NO_INTRA_EMPHASIS) && (c === '_')) {
+					if (!(i + 1 === data.length || _isspace(data[i + 1]) || ispunct(data[i + 1])))
 						continue;
 				}
 
@@ -2479,7 +2478,7 @@
 		var i = 0, len;
 		var r;
 
-		var render_method = (c == '~') ? md.callbacks.strikethrough : md.callbacks.double_emphasis;
+		var render_method = (c === '~') ? md.callbacks.strikethrough : md.callbacks.double_emphasis;
 
 		if (!render_method) return 0;
 
@@ -2488,7 +2487,7 @@
 			if (!len) return 0;
 			i += len;
 
-			if (i + 1 < data.length && data[i] == c && data[i + 1] == c && i && !_isspace(data[i - 1])) {
+			if (i + 1 < data.length && data[i] === c && data[i + 1] === c && i && !_isspace(data[i - 1])) {
 				var work = new Buffer();
 				md.spanStack.push(work);
 				parse_inline(work, md, data.slice(0, i));
@@ -2514,9 +2513,9 @@
 			i += len;
 
 			/* skip whitespace preceded symbols */
-			if (data[i] != c || _isspace(data[i - 1])) continue;
+			if (data[i] !== c || _isspace(data[i - 1])) continue;
 
-			if (i + 2 < data.length && data[i + 1] == c && data[i + 2] == c && md.callbacks.triple_emphasis) {
+			if (i + 2 < data.length && data[i + 1] === c && data[i + 2] === c && md.callbacks.triple_emphasis) {
 				/* triple symbol found */
 				var work = new Buffer();
 				md.spanStack.push(work);
@@ -2525,7 +2524,7 @@
 				md.spanStack.pop();
 				return r ? i + 3 : 0;
 
-			} else if (i + 1 < data.length && data[i + 1] == c) {
+			} else if (i + 1 < data.length && data[i + 1] === c) {
 				/* double symbol found, handing over to emph1 */
 				len = parse_emph1(out, md, data_, c);
 				if (!len) return 0;
@@ -2542,15 +2541,15 @@
 	}
 
 	function is_atxheader(md, data) {
-		if (data[0] != '#') return false;
+		if (data[0] !== '#') return false;
 
 		if (md.extensions & MKDEXT_SPACE_HEADERS) {
 			var level = 0;
 
-			while (level < data.length && level < 6 && data[level] == '#')
+			while (level < data.length && level < 6 && data[level] === '#')
 				level++;
 
-			if (level < data.length && data[level] != ' ')
+			if (level < data.length && data[level] !== ' ')
 				return false;
 		}
 
@@ -2564,16 +2563,16 @@
 		var size = data.length;
 
 		/* test of level 1 header */
-		if (data[i] == '=') {
-			for (i = 1; i < size && data[i] == '='; i++) {}
-			while (i < size && data[i] == ' ') i++;
-			return (i >= size || data[i] == '\n') ? 1 : 0; }
+		if (data[i] === '=') {
+			for (i = 1; i < size && data[i] === '='; i++) {}
+			while (i < size && data[i] === ' ') i++;
+			return (i >= size || data[i] === '\n') ? 1 : 0; }
 
 		/* test of level 2 header */
-		if (data[i] == '-') {
-			for (i = 1; i < size && data[i] == '-'; i++) {}
-			while (i < size && data[i] == ' ') i++;
-			return (i >= size || data[i] == '\n') ? 2 : 0; }
+		if (data[i] === '-') {
+			for (i = 1; i < size && data[i] === '-'; i++) {}
+			while (i < size && data[i] === ' ') i++;
+			return (i >= size || data[i] === '\n') ? 2 : 0; }
 
 		return 0;
 	}
@@ -2582,7 +2581,7 @@
 		var size = data.length;
 		var i = 0;
 
-		while (i < size && data[i] != '\n') i++;
+		while (i < size && data[i] !== '\n') i++;
 
 		if (++i >= size) return 0;
 
@@ -2593,12 +2592,12 @@
 	function prefix_quote(data) {
 		var i = 0;
 		var size = data.length;
-		if (i < size && data[i] == ' ') i++;
-		if (i < size && data[i] == ' ') i++;
-		if (i < size && data[i] == ' ') i++;
+		if (i < size && data[i] === ' ') i++;
+		if (i < size && data[i] === ' ') i++;
+		if (i < size && data[i] === ' ') i++;
 
-		if (i < size && data[i] == '>') {
-			if (i + 1 < size && data[i + 1] == ' ')
+		if (i < size && data[i] === '>') {
+			if (i + 1 < size && data[i + 1] === ' ')
 				return i + 2;
 
 			return i + 1;
@@ -2609,8 +2608,8 @@
 
 	/* prefix_code • returns prefix length for block code*/
 	function prefix_code(data) {
-		if (data.length > 3 && data[0] == ' ' && data[1] == ' '
-				&& data[2] == ' ' && data[3] == ' ') return 4;
+		if (data.length > 3 && data[0] === ' ' && data[1] === ' '
+				&& data[2] === ' ' && data[3] === ' ') return 4;
 
 		return 0;
 	}
@@ -2620,15 +2619,15 @@
 		var size = data.length;
 		var i = 0;
 
-		if (i < size && data[i] == ' ') i++;
-		if (i < size && data[i] == ' ') i++;
-		if (i < size && data[i] == ' ') i++;
+		if (i < size && data[i] === ' ') i++;
+		if (i < size && data[i] === ' ') i++;
+		if (i < size && data[i] === ' ') i++;
 
 		if (i >= size || data[i] < '0' || data[i] > '9') return 0;
 
 		while (i < size && data[i] >= '0' && data[i] <= '9') i++;
 
-		if (i + 1 >= size || data[i] != '.' || data[i + 1] != ' ') return 0;
+		if (i + 1 >= size || data[i] !== '.' || data[i + 1] !== ' ') return 0;
 
 		if (is_next_headerline(data.slice(i))) return 0;
 
@@ -2640,13 +2639,13 @@
 		var size = data.length;
 		var i = 0;
 
-		if (i < size && data[i] == ' ') i++;
-		if (i < size && data[i] == ' ') i++;
-		if (i < size && data[i] == ' ') i++;
+		if (i < size && data[i] === ' ') i++;
+		if (i < size && data[i] === ' ') i++;
+		if (i < size && data[i] === ' ') i++;
 
 		if (i + 1 >= size ||
-				(data[i] != '*' && data[i] != '+' && data[i] != '-') ||
-				data[i + 1] != ' ')
+				(data[i] !== '*' && data[i] !== '+' && data[i] !== '-') ||
+				data[i + 1] !== ' ')
 			return 0;
 
 		if (is_next_headerline(data.slice(i))) return 0;
@@ -2674,7 +2673,7 @@
 					break;
 
 				case '>':
-					return (nb == 1) ? i + 1 : 0;
+					return (nb === 1) ? i + 1 : 0;
 
 				default:
 					return 0;
@@ -2692,8 +2691,8 @@
 		if (data.length < 3) return 0;
 
 		/* begins with a '<' optionally followed by '/', followed by letter or number */
-		if (data[0] != '<') return 0;
-		i = (data[1] == '/') ? 2 : 1;
+		if (data[0] !== '<') return 0;
+		i = (data[1] === '/') ? 2 : 1;
 
 		if (!isalnum(data[i])) return 0;
 
@@ -2701,16 +2700,16 @@
 		autolink.p = MKDA_NOT_AUTOLINK;
 
 		/* try to find the beginning of an URI */
-		while (i < data.length && (isalnum(data[i]) || data[i] == '.' || data[i] == '+' || data[i] == '-')) i++;
+		while (i < data.length && (isalnum(data[i]) || data[i] === '.' || data[i] === '+' || data[i] === '-')) i++;
 
-		if (i > 1 && data[i] == '@') {
-			if ((j = is_mail_autolink(data.slice(i))) != 0) {
+		if (i > 1 && data[i] === '@') {
+			if ((j = is_mail_autolink(data.slice(i))) !== 0) {
 				autolink.p = MKDA_EMAIL;
 				return i + j;
 			}
 		}
 
-		if (i > 2 && data[i] == ':') {
+		if (i > 2 && data[i] === ':') {
 			autolink.p = MKDA_NORMAL;
 			i++;
 		}
@@ -2721,21 +2720,21 @@
 			j = i;
 
 			while (i < data.length) {
-				if (data[i] == '\\') i += 2;
-				else if (data[i] == '>' || data[i] == '\'' ||
-						data[i] == '"' || data[i] == ' ' || data[i] == '\n')
+				if (data[i] === '\\') i += 2;
+				else if (data[i] === '>' || data[i] === '\'' ||
+						data[i] === '"' || data[i] === ' ' || data[i] === '\n')
 					break;
 				else i++;
 			}
 
 			if (i >= data.length) return 0;
-			if (i > j && data[i] == '>') return i + 1;
+			if (i > j && data[i] === '>') return i + 1;
 			/* one of the forbidden chars has been found */
 			autolink.p = MKDA_NOT_AUTOLINK;
 		}
 
 		/* looking for sometinhg looking like a tag end */
-		while (i < data.length && data[i] != '>') i++;
+		while (i < data.length && data[i] !== '>') i++;
 		if (i >= data.length) return 0;
 		return i + 1;
 	}
@@ -2781,16 +2780,16 @@
 		var level = 0;
 		var i, end, skip;
 
-		while (level < data.length && level < 6 && data[level] == '#') level++;
+		while (level < data.length && level < 6 && data[level] === '#') level++;
 
-		for (i = level; i < data.length && data[i] == ' '; i++) {}
+		for (i = level; i < data.length && data[i] === ' '; i++) {}
 
-		for (end = i; end < data.length && data[end] != '\n'; end++) {}
+		for (end = i; end < data.length && data[end] !== '\n'; end++) {}
 		skip = end;
 
-		while (end && data[end - 1] == '#') end--;
+		while (end && data[end - 1] === '#') end--;
 
-		while (end && data[end - 1] == ' ') end--;
+		while (end && data[end - 1] === ' ') end--;
 
 		if (end > i) {
 			var work = new Buffer();
@@ -2816,14 +2815,14 @@
 		/* checking if tag is a match */
 		//tag should already be lowercase
 		if (tag.length + 3 >= data.length ||
-				data.slice(2).toLowerCase() != tag ||
-				data[tag.length + 2] != '>')
+				data.slice(2).toLowerCase() !== tag ||
+				data[tag.length + 2] !== '>')
 			return 0;
 
 		/* checking white lines */
 		i = tag.length + 3;
 		w = 0;
-		if (i < data.length && (w = is_empty(data.slice(i))) == 0)
+		if (i < data.length && (w = is_empty(data.slice(i))) === 0)
 			return 0; /* non-blank after tag */
 		i += w;
 		w = 0;
@@ -2842,10 +2841,10 @@
 		var work = new Buffer(data);
 
 		/* identification of the opening tag */
-		if (data.length < 2 || data[0] != '<') return 0;
+		if (data.length < 2 || data[0] !== '<') return 0;
 
 		i = 1;
-		while (i < data.length && data[i] != '>' && data[i] != ' ') i++;
+		while (i < data.length && data[i] !== '>' && data[i] !== ' ') i++;
 
 		if (i < data.length) curtag = find_block_tag(data.slice(1));
 
@@ -2853,10 +2852,10 @@
 		if (!curtag) {
 
 			/* HTML comment, laxist form */
-			if (data.length > 5 && data[1] == '!' && data[2] == '-' && data[3] == '-') {
+			if (data.length > 5 && data[1] === '!' && data[2] === '-' && data[3] === '-') {
 				i = 5;
 
-				while (i < data.length && !(data[i - 2] == '-' && data[i - 1] == '-' && data[i] == '>')) i++;
+				while (i < data.length && !(data[i - 2] === '-' && data[i - 1] === '-' && data[i] === '>')) i++;
 
 				i++;
 
@@ -2874,9 +2873,9 @@
 			}
 
 			/* HR, which is the only self-closing block tag considered */
-			if (data.length > 4 && (data[1] == 'h' || data[1] == 'H') && (data[2] == 'r' || data[2] == 'R')) {
+			if (data.length > 4 && (data[1] === 'h' || data[1] === 'H') && (data[2] === 'r' || data[2] === 'R')) {
 				i = 3;
-				while (i < data.length && data[i] != '>') i++;
+				while (i < data.length && data[i] !== '>') i++;
 
 				if (i + 1 < data.length) {
 					i++;
@@ -2901,12 +2900,12 @@
 
 		/* if not found, trying a second pass looking for indented match */
 		/* but not if tag is "ins" or "del" (following original Markdown.pl) */
-		if (curtag != 'ins' && curtag != 'del') {
+		if (curtag !== 'ins' && curtag !== 'del') {
 			var tag_size = curtag.length;
 			i = 1;
 			while (i < data.length) {
 				i++;
-				while (i < data.length && !(data[i - 1] == '<' && data[i] == '/'))
+				while (i < data.length && !(data[i - 1] === '<' && data[i] === '/'))
 					i++;
 
 				if (i + 2 + tag_size >= data.length)
@@ -2948,7 +2947,7 @@
 
 		beg = 0;
 		while (beg < size) {
-			for (end = beg + 1; end < size && data[end - 1] != '\n'; end++) {}
+			for (end = beg + 1; end < size && data[end - 1] !== '\n'; end++) {}
 
 			pre = prefix_quote(data.slice(beg, end));
 
@@ -2956,7 +2955,7 @@
 
 			/* empty line followed by non-quote line */
 			else if (is_empty(data.slice(beg, end)) &&
-					(end >= size || (prefix_quote(data.slice(end)) == 0 &&
+					(end >= size || (prefix_quote(data.slice(end)) === 0 &&
 									 !is_empty(data.slice(end)))))
 				break;
 
@@ -2968,7 +2967,7 @@
 				work_data += data.slice(beg, end);
 				/*
 				if (!work_data) work_data_cursor = beg;
-				else if (beg != work_data_cursor + work_size)
+				else if (beg !== work_data_cursor + work_size)
 					work_data += data.slice(beg, end);
 					*/
 					// memmove(work_data + work_size, data + beg, end - beg);
@@ -2992,17 +2991,17 @@
 		var work = new Buffer(data);
 
 		while (i < size) {
-			for (end = i + 1; end < size && data[end - 1] != '\n'; end++) {/* empty */}
+			for (end = i + 1; end < size && data[end - 1] !== '\n'; end++) {/* empty */}
 
-			if (prefix_quote(data.slice(i, end)) != 0) {
+			if (prefix_quote(data.slice(i, end)) !== 0) {
 				end = i;
 				break;
 			}
 
 			var tempdata = data.slice(i);
-			if (is_empty(tempdata) || (level = is_headerline(tempdata)) != 0) break;
+			if (is_empty(tempdata) || (level = is_headerline(tempdata)) !== 0) break;
 			if (is_empty(tempdata)) break;
-			if ((level = is_headerline(tempdata)) != 0) break;
+			if ((level = is_headerline(tempdata)) !== 0) break;
 
 			if (is_atxheader(md, tempdata)
 				|| is_hrule(tempdata)
@@ -3026,15 +3025,15 @@
 					break;
 				}
 				/* see if an html block starts here */
-				if (data[i] == '<' && md.callbacks.blockhtml
+				if (data[i] === '<' && md.callbacks.blockhtml
 						&& parse_htmlblock(out, md, tempdata, 0)) {
 					end = i;
 					break
 				}
 
 				/* see if a code fence starts here */
-				if ((md.extensions && MKDEXT_FENCED_CODE) != 0
-						&& is_codefence(tempdata, null) != 0) {
+				if ((md.extensions && MKDEXT_FENCED_CODE) !== 0
+						&& is_codefence(tempdata, null) !== 0) {
 					end = i;
 					break;
 				}
@@ -3044,7 +3043,7 @@
 		}
 
 		var work_size = i;
-		while (work_size && data[work_size - 1] == '\n') work_size--;
+		while (work_size && data[work_size - 1] === '\n') work_size--;
 		work.s = work.s.slice(0, work_size);
 
 		if (!level) {
@@ -3063,11 +3062,11 @@
 				// var work_size = work.s.length - 1;
 				// work.size -= 1;
 
-				while (work_size && data[work_size] != '\n')
+				while (work_size && data[work_size] !== '\n')
 					work_size -= 1;
 
 				beg = work_size + 1;
-				while (work_size && data[work_size - 1] == '\n')
+				while (work_size && data[work_size - 1] === '\n')
 					work_size -= 1;
 
 				work.s = work.s.slice(0, work_size);
@@ -3105,7 +3104,7 @@
 		var lang = new Buffer();
 
 		beg = is_codefence(data, lang);
-		if (beg == 0) return 0;
+		if (beg === 0) return 0;
 
 		work = new Buffer();
 		md.blockStack.push(work);
@@ -3115,12 +3114,12 @@
 			var fence_trail = new Buffer();
 
 			fence_end = is_codefence(data.slice(beg), fence_trail);
-			if (fence_end != 0 && fence_trail.s.length == 0) {
+			if (fence_end !== 0 && fence_trail.s.length === 0) {
 				beg += fence_end;
 				break;
 			}
 
-			for (end = beg + 1; end < data.length && data[end - 1] != '\n'; end++) {}
+			for (end = beg + 1; end < data.length && data[end - 1] !== '\n'; end++) {}
 
 			if (beg < end) {
 				/* verbatim copy to the working buffer,
@@ -3132,7 +3131,7 @@
 			beg = end;
 		}
 
-		if (work.s.length && work.s[work.s.length - 1] != '\n')
+		if (work.s.length && work.s[work.s.length - 1] !== '\n')
 			work.s += '\n';
 
 		if (md.callbacks.blockcode)
@@ -3151,7 +3150,7 @@
 
 		beg = 0;
 		while (beg < size) {
-			for (end = beg + 1; end < size && data[end - 1] != '\n'; end++) {};
+			for (end = beg + 1; end < size && data[end - 1] !== '\n'; end++) {};
 			pre = prefix_code(data.slice(beg, end));
 
 			if (pre) beg += pre; /* skipping prefix */
@@ -3169,7 +3168,7 @@
 		}
 
 		var work_size = work.s.length;
-		while (work_size && work.s[work_size - 1] == '\n') work_size -= 1;
+		while (work_size && work.s[work_size - 1] === '\n') work_size -= 1;
 		work.s = work.s.slice(0, work_size);
 
 		work.s += '\n';
@@ -3191,7 +3190,7 @@
 		var in_empty = 0, has_inside_empty = 0, in_fence = 0;
 
 		/* keeping track of the first indentation prefix */
-		while (orgpre < 3 && orgpre < size && data[orgpre] == ' ')
+		while (orgpre < 3 && orgpre < size && data[orgpre] === ' ')
 			orgpre++;
 
 		//TODO
@@ -3202,7 +3201,7 @@
 
 		/* skipping to the beginning of the following line */
 		end = beg;
-		while (end < size && data[end - 1] != '\n') end++;
+		while (end < size && data[end - 1] !== '\n') end++;
 
 		/* getting working buffers */
 		md.spanStack.push(work = new Buffer());
@@ -3217,7 +3216,7 @@
 			var has_next_uli, has_next_oli;
 			end++;
 
-			while (end < size && data[end - 1] != '\n') end++;
+			while (end < size && data[end - 1] !== '\n') end++;
 
 			/* process an empty line */
 			if (is_empty(data.slice(beg, end))) {
@@ -3228,13 +3227,13 @@
 
 			/* calculating the indentation */
 			i = 0;
-			while (i < 4 && beg + i < end && data[beg + i] == ' ') i++;
+			while (i < 4 && beg + i < end && data[beg + i] === ' ') i++;
 
 			pre = i;
 
 			//TODO: Cache this slice?
 			if (md.flags & MKDEXT_FENCED_CODE) {
-				if (is_codefence(data.slice(beg+i, end), null) != 0) {
+				if (is_codefence(data.slice(beg+i, end), null) !== 0) {
 					in_fence = !in_fence;
 				}
 			}
@@ -3257,7 +3256,7 @@
 			if ((has_next_uli && !is_hrule(data.slice(beg+i, end))) || has_next_oli) {
 				if (in_empty) has_inside_empty = 1;
 
-				if (pre == orgpre) /* the following item must have */
+				if (pre === orgpre) /* the following item must have */
 					break;             /* the same indentation */
 
 				if (!sublist) sublist = work.s.length;
@@ -3265,7 +3264,7 @@
 			/* joining only indented stuff after empty lines;
 			 * note that now we only require 1 space of indentation
 			 * to continue list */
-			else if (in_empty && pre == 0) {
+			else if (in_empty && pre === 0) {
 				flags.p |= MKD_LI_END;
 				break;
 			}
@@ -3344,7 +3343,7 @@
 
 		md.spanStack.push(row_work = new Buffer());
 
-		if (i < data.length && data[i] == '|') i++;
+		if (i < data.length && data[i] === '|') i++;
 
 		for (col = 0; col < columns.length && i < data.length; ++col) {
 			var cell_start, cell_end;
@@ -3356,7 +3355,7 @@
 
 			cell_start = i;
 
-			while (i < data.length && data[i] != '|') i++;
+			while (i < data.length && data[i] !== '|') i++;
 
 			cell_end = i - 1;
 
@@ -3384,19 +3383,19 @@
 		var i = 0, col, header_end, under_end;
 
 		var pipes = 0;
-		while (i < data.length && data[i] != '\n')
-			if (data[i++] == '|') pipes++;
+		while (i < data.length && data[i] !== '\n')
+			if (data[i++] === '|') pipes++;
 
-		if (i == data.length || pipes == 0)
+		if (i === data.length || pipes === 0)
 			return 0;
 
 		header_end = i;
 
 		while (header_end > 0 && _isspace(data[header_end - 1])) header_end--;
 
-		if (data[0] == '|') pipes--;
+		if (data[0] === '|') pipes--;
 
-		if (header_end && data[header_end - 1] == '|') pipes--;
+		if (header_end && data[header_end - 1] === '|') pipes--;
 
 		//	columns.p = pipes + 1;
 		//	column_data.p = new Array(columns.p);
@@ -3405,34 +3404,34 @@
 
 		/* Parse the header underline */
 		i++;
-		if (i < data.length && data[i] == '|') i++;
+		if (i < data.length && data[i] === '|') i++;
 
 		under_end = i;
-		while (under_end < data.length && data[under_end] != '\n') under_end++;
+		while (under_end < data.length && data[under_end] !== '\n') under_end++;
 
 		for (col = 0; col < columns.p.length && i < under_end; ++col) {
 			var dashes = 0;
 
-			while (i < under_end && data[i] == ' ') i++;
+			while (i < under_end && data[i] === ' ') i++;
 
-			if (data[i] == ':') {
+			if (data[i] === ':') {
 				i++;
 				columns.p[col] |= MKD_TABLE_ALIGN_L;
 				dashes++;
 			}
 
-			while (i < under_end && data[i] == '-') {
+			while (i < under_end && data[i] === '-') {
 				i++; dashes++;
 			}
 
-			if (i < under_end && data[i] == ':') {
+			if (i < under_end && data[i] === ':') {
 				i++; columns.p[col] |= MKD_TABLE_ALIGN_R;
 				dashes++;
 			}
 
-			while (i < under_end && data[i] == ' ') i++;
+			while (i < under_end && data[i] === ' ') i++;
 
-			if (i < under_end && data[i] != '|') break;
+			if (i < under_end && data[i] !== '|') break;
 
 			if (dashes < 1) break;
 
@@ -3464,11 +3463,11 @@
 
 			row_start = i;
 
-			while (i < data.length && data[i] != '\n')
-				if (data[i++] == '|')
+			while (i < data.length && data[i] !== '\n')
+				if (data[i++] === '|')
 					pipes++;
 
-			if (pipes == 0 || i == data.length) {
+			if (pipes === 0 || i === data.length) {
 				i = row_start;
 				break;
 			}
@@ -3502,26 +3501,26 @@
 			if (is_atxheader(md, textData))
 				beg += parse_atxheader(out, md, textData);
 
-			else if (data[beg] == '<' && md.callbacks.blockhtml &&
-					(i = parse_htmlblock(out, md, textData, 1)) != 0)
+			else if (data[beg] === '<' && md.callbacks.blockhtml &&
+					(i = parse_htmlblock(out, md, textData, 1)) !== 0)
 				beg += i;
-			else if ((i = is_empty(textData)) != 0)
+			else if ((i = is_empty(textData)) !== 0)
 				beg += i;
 			else if (is_hrule(textData)) {
 				if (md.callbacks.hrule)
 					md.callbacks.hrule(out, md.context);
 
-				while (beg < data.length && data[beg] != '\n') beg++;
+				while (beg < data.length && data[beg] !== '\n') beg++;
 
 				beg++;
 			}
 
-			else if ((md.extensions & MKDEXT_FENCED_CODE) != 0 &&
-					(i = parse_fencedcode(out, md, textData)) != 0)
+			else if ((md.extensions & MKDEXT_FENCED_CODE) !== 0 &&
+					(i = parse_fencedcode(out, md, textData)) !== 0)
 				beg += i;
 
-			else if ((md.extensions & MKDEXT_TABLES) != 0 &&
-					(i = parse_table(out, md, textData)) != 0)
+			else if ((md.extensions & MKDEXT_TABLES) !== 0 &&
+					(i = parse_table(out, md, textData)) !== 0)
 				beg += i;
 
 			else if (prefix_quote(textData))
@@ -3552,78 +3551,78 @@
 
 		/* up to 3 optional leading spaces */
 		if (beg + 3 >= end) return 0;
-		if (data[beg] == ' ') { i = 1;
-		if (data[beg + 1] == ' ') { i = 2;
-		if (data[beg + 2] == ' ') { i = 3;
-		if (data[beg + 3] == ' ') return 0; } } }
+		if (data[beg] === ' ') { i = 1;
+		if (data[beg + 1] === ' ') { i = 2;
+		if (data[beg + 2] === ' ') { i = 3;
+		if (data[beg + 3] === ' ') return 0; } } }
 		i += beg;
 
 		/* id part: anything but a newline between brackets */
-		if (data[i] != '[') return 0;
+		if (data[i] !== '[') return 0;
 		i++;
 		idOffset = i;
-		while (i < end && data[i] != '\n' && data[i] != '\r' && data[i] != ']') i++;
-		if (i >= end || data[i] != ']') return 0;
+		while (i < end && data[i] !== '\n' && data[i] !== '\r' && data[i] !== ']') i++;
+		if (i >= end || data[i] !== ']') return 0;
 		idEnd = i;
 
 		/* spacer: colon (space | tab)* newline? (space | tab)* */
 		i++;
-		if (i >= end || data[i] != ':') return 0;
+		if (i >= end || data[i] !== ':') return 0;
 		i++;
-		while (i < end && data[i] == ' ') i++;
-		if (i < end && (data[i] == '\n' || data[i] == '\r')) {
+		while (i < end && data[i] === ' ') i++;
+		if (i < end && (data[i] === '\n' || data[i] === '\r')) {
 			i++;
-			if (i < end && data[i] == '\r' && data[i - 1] == '\n') i++; }
-		while (i < end && data[i] == ' ') i++;
+			if (i < end && data[i] === '\r' && data[i - 1] === '\n') i++; }
+		while (i < end && data[i] === ' ') i++;
 		if (i >= end) return 0;
 
 		/* link: whitespace-free sequence, optionally between angle brackets */
-		if (data[i] == '<') i++;
+		if (data[i] === '<') i++;
 
 		linkOffset = i;
-		while (i < end && data[i] != ' ' && data[i] != '\n' && data[i] != '\r') i++;
+		while (i < end && data[i] !== ' ' && data[i] !== '\n' && data[i] !== '\r') i++;
 
-		if (data[i - 1] == '>') linkEnd = i - 1; else linkEnd = i;
+		if (data[i - 1] === '>') linkEnd = i - 1; else linkEnd = i;
 
 		/* optional spacer: (space | tab)* (newline | '\'' | '"' | '(' ) */
-		while (i < end && data[i] == ' ') i++;
-		if (i < end && data[i] != '\n' && data[i] != '\r'
-				&& data[i] != '\'' && data[i] != '"' && data[i] != '(')
+		while (i < end && data[i] === ' ') i++;
+		if (i < end && data[i] !== '\n' && data[i] !== '\r'
+				&& data[i] !== '\'' && data[i] !== '"' && data[i] !== '(')
 			return 0;
 		lineEnd = 0;
 		/* computing end-of-line */
-		if (i >= end || data[i] == '\r' || data[i] == '\n') lineEnd = i;
-		if (i + 1 < end && data[i] == '\n' && data[i + 1] == '\r')
+		if (i >= end || data[i] === '\r' || data[i] === '\n') lineEnd = i;
+		if (i + 1 < end && data[i] === '\n' && data[i + 1] === '\r')
 			lineEnd = i + 1;
 
 		/* optional (space|tab)* spacer after a newline */
 		if (lineEnd) {
 			i = lineEnd + 1;
-			while (i < end && data[i] == ' ') i++;
+			while (i < end && data[i] === ' ') i++;
 		}
 
 		/* optional title: any non-newline sequence enclosed in '"()
 		   alone on its line */
 		titleOffset = titleEnd = 0;
-		if (i + 1 < end && (data[i] == '\'' || data[i] == '"' || data[i] == '(')) {
+		if (i + 1 < end && (data[i] === '\'' || data[i] === '"' || data[i] === '(')) {
 			i++;
 			titleOffset = i;
 			/* looking for EOL */
-			while (i < end && data[i] != '\n' && data[i] != '\r') i++;
-			if (i + 1 < end && data[i] == '\n' && data[i + 1] == '\r')
+			while (i < end && data[i] !== '\n' && data[i] !== '\r') i++;
+			if (i + 1 < end && data[i] === '\n' && data[i + 1] === '\r')
 				titleEnd = i + 1;
 			else titleEnd = i;
 			/* stepping back */
 			i -= 1;
-			while (i > titleOffset && data[i] == ' ')
+			while (i > titleOffset && data[i] === ' ')
 				i -= 1;
-			if (i > titleOffset && (data[i] == '\'' || data[i] == '"' || data[i] == ')')) {
+			if (i > titleOffset && (data[i] === '\'' || data[i] === '"' || data[i] === ')')) {
 				lineEnd = titleEnd;
 				titleEnd = i;
 			}
 		}
 
-		if (!lineEnd || linkEnd == linkOffset)
+		if (!lineEnd || linkEnd === linkOffset)
 			return 0; /* garbage after the link empty link */
 
 		var id = data.slice(idOffset, idEnd);
@@ -3644,7 +3643,7 @@
 		while (i < line.length) {
 			var org = i;
 
-			while (i < line.length && line[i] != '\t') {
+			while (i < line.length && line[i] !== '\t') {
 				i++; tab++;
 			}
 
@@ -3677,14 +3676,14 @@
 				beg = end;
 			else { /* skipping to the next line */
 				end = beg;
-				while (end < source.length && source[end] != '\n' && source[end] != '\r') end++;
+				while (end < source.length && source[end] !== '\n' && source[end] !== '\r') end++;
 
 				/* adding the line body if present */
 				if (end > beg) expand_tabs(text, source.slice(beg, end));
 
-				while (end < source.length && (source[end] == '\n' || source[end] == '\r')) {
+				while (end < source.length && (source[end] === '\n' || source[end] === '\r')) {
 					/* add one \n per newline */
-					if (source[end] == '\n' || (end + 1 < source.length && source[end + 1] != '\n'))
+					if (source[end] === '\n' || (end + 1 < source.length && source[end + 1] !== '\n'))
 						text.s += '\n';
 					end++;
 				}
@@ -3701,7 +3700,7 @@
 
 		if (text.s.length) {
 			/* adding a final newline if not already present */
-			if (text.s[text.s.length - 1] != '\n' &&  text.s[text.s.length - 1] != '\r')
+			if (text.s[text.s.length - 1] !== '\n' &&  text.s[text.s.length - 1] !== '\r')
 				text.s += '\n';
 			parse_block(out, this, text.s);
 		}
@@ -3728,7 +3727,7 @@
 		if (renderer) md.callbacks = renderer.callbacks;
 		if (nestingLimit) md.nestingLimit = nestingLimit;
 		if (renderer) md.context = renderer.context;
-		if (extensions != undefined && extensions != null) md.extensions = extensions;
+		if (extensions !== undefined && extensions !== null) md.extensions = extensions;
 
 		var cb = md.callbacks;
 		if (cb.emphasis || cb.double_emphasis || cb.triple_emphasis) {
@@ -3796,4 +3795,3 @@
 		define('snuownd', [], exports);
 	}
 })(typeof(exports)!=='undefined'?exports:typeof(window)!=='undefined'?window.SnuOwnd={}:{});
-
