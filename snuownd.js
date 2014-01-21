@@ -1,5 +1,5 @@
 /**
- * @preserve snuownd.js - javascript port of reddit's "snudown" markdown parser
+ * @preserve snuownd.js - JavaScript port of reddit's "snudown" markdown parser
  * https://github.com/gamefreak/snuownd
 */
 /**
