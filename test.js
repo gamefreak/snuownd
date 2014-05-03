@@ -16,7 +16,7 @@ colors = {
 	RESET: '\033[0m'
 }
 
-cases = {
+reddit_cases = {
     '': '',
     'http://www.reddit.com':
         '<p><a href="http://www.reddit.com">http://www.reddit.com</a></p>\n',
@@ -142,24 +142,115 @@ cases = {
         '<p><a href="/r/t:heatdeathoftheuniverse">/r/t:heatdeathoftheuniverse</a></p>\n',
 }
 
+wiki_cases = {
+    '<table scope="foo"bar>':
+        '<p><table scope="foo"></p>\n',
+
+    '<table scope="foo"bar colspan="2">':
+        '<p><table scope="foo" colspan="2"></p>\n',
+
+    '<table scope="foo" colspan="2"bar>':
+        '<p><table scope="foo" colspan="2"></p>\n',
+
+    '<table scope="foo">':
+        '<p><table scope="foo"></p>\n',
+
+    '<table scop="foo">':
+        '<p><table></p>\n',
+
+    '<table ff= scope="foo">':
+        '<p><table scope="foo"></p>\n',
+
+    '<table colspan= scope="foo">':
+        '<p><table scope="foo"></p>\n',
+
+    '<table scope=ff"foo">':
+        '<p><table scope="foo"></p>\n',
+
+    '<table scope="foo" test="test">':
+        '<p><table scope="foo"></p>\n',
+
+    '<table scope="foo" longervalue="testing test" scope="test">':
+        '<p><table scope="foo" scope="test"></p>\n',
+
+    '<table scope=`"foo">':
+        '<p><table scope="foo"></p>\n',
+
+    '<table scope="foo bar">':
+        '<p><table scope="foo bar"></p>\n',
+
+    '<table scope=\'foo colspan="foo">':
+        '<p><table></p>\n',
+
+    '<table scope=\'foo\' colspan="foo">':
+        '<p><table scope="foo" colspan="foo"></p>\n',
+
+    '<table scope=>':
+        '<p><table></p>\n',
+
+    '<table scope= colspan="test" scope=>':
+        '<p><table colspan="test"></p>\n',
+
+    '<table colspan="\'test">':
+        '<p><table colspan="&#39;test"></p>\n',
+
+    '<table scope="foo" colspan="2">':
+        '<p><table scope="foo" colspan="2"></p>\n',
+
+    '<table scope="foo" colspan="2" ff="test">':
+        '<p><table scope="foo" colspan="2"></p>\n',
+
+    '<table ff="test" scope="foo" colspan="2" colspan=>':
+        '<p><table scope="foo" colspan="2"></p>\n',
+
+    ' <table colspan=\'\'\' a="" \' scope="foo">':
+        '<p><table scope="foo"></p>\n',
+}
+
+render_cases = {
+    'reddit': reddit_cases,
+    'wiki': wiki_cases
+}
+
 console.log("Running Snudown test cases.");
 var showSuccesses = false
-for (var text in cases) {
+for (var type in render_cases) {
+    var type_cases = render_cases[type];
+    
+    var type_md = null;
+    if(type == "reddit") {
+        type_md = snuownd.getParser();
+    } else if(type == "wiki") {
+        var redditCallbacks = snuownd.getRedditCallbacks();
+        var rendererConfig = snuownd.defaultRenderState();
+        rendererConfig.flags = snuownd.DEFAULT_WIKI_FLAGS;
+        rendererConfig.html_element_whitelist = snuownd.DEFAULT_HTML_ELEMENT_WHITELIST;
+        rendererConfig.html_attr_whitelist = snuownd.DEFAULT_HTML_ATTR_WHITELIST;
+        type_md = snuownd.getParser({
+            callbacks: redditCallbacks,
+            context: rendererConfig
+        });
+    } else {
+        throw Exception("Unrecognized render type");
+    }
+    
+    for (var text in type_cases) {
 
-	var result = md.render(text);
-	if (cases[text] == result) {
-		if (showSuccesses) {
-			console.log(text);
-			console.log(cases[text]);
-			console.log(result);
-			console.log();
-		}
-	} else {
-		console.log(colors.RED, text, colors.RESET);
-		console.log(cases[text]);
-		console.log(result);
-		console.log();
-	}
+        var result = type_md.render(text);
+        if (type_cases[text] == result) {
+            if (showSuccesses) {
+                console.log(text);
+                console.log(type_cases[text]);
+                console.log(result);
+                console.log();
+            }
+        } else {
+            console.log(colors.RED, text, colors.RESET);
+            console.log(type_cases[text]);
+            console.log(result);
+            console.log();
+        }
+    }
 }
 
 try {
