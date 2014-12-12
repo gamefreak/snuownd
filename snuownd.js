@@ -19,7 +19,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-// up to date with commit b6baacb79996cec794a20d3abcae51adec5cc3cd
+// up to date with commit 8eb57f6a2259480160f0ba569344ccfa3371eaef
 
 /**
 @module SnuOwnd
@@ -376,7 +376,7 @@
 		var valid_uris = [
 			"http://", "https://", "ftp://", "mailto://",
 		"/", "git://", "steam://", "irc://", "news://", "mumble://",
-		"ssh://", "ircs://", "#"];
+		"ssh://", "ircs://", "ts3server://", "#"];
 
 		var i;
 
