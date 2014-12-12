@@ -2,6 +2,20 @@
 
 var snuownd = require('./snuownd');
 var md = snuownd.getParser();
+
+var md_wiki = (function() {
+    var redditCallbacks = snuownd.getRedditCallbacks();
+    var rendererConfig = snuownd.defaultRenderState();
+    rendererConfig.flags = snuownd.DEFAULT_WIKI_FLAGS;
+    rendererConfig.html_element_whitelist = snuownd.DEFAULT_HTML_ELEMENT_WHITELIST;
+    rendererConfig.html_attr_whitelist = snuownd.DEFAULT_HTML_ATTR_WHITELIST;
+
+    return snuownd.getParser({
+        callbacks: redditCallbacks,
+        context: rendererConfig
+    });
+})();
+
 var fs = require('fs');
 
 colors = {
@@ -142,6 +156,71 @@ cases = {
         '<p><a href="/r/t:heatdeathoftheuniverse">/r/t:heatdeathoftheuniverse</a></p>\n',
 }
 
+wiki_cases = {
+    '<table scope="foo"bar>':
+        '<p><table scope="foo"></p>\n',
+
+    '<table scope="foo"bar colspan="2">':
+        '<p><table scope="foo" colspan="2"></p>\n',
+
+    '<table scope="foo" colspan="2"bar>':
+        '<p><table scope="foo" colspan="2"></p>\n',
+
+    '<table scope="foo">':
+        '<p><table scope="foo"></p>\n',
+
+    '<table scop="foo">':
+        '<p><table></p>\n',
+
+    '<table ff= scope="foo">':
+        '<p><table scope="foo"></p>\n',
+
+    '<table colspan= scope="foo">':
+        '<p><table scope="foo"></p>\n',
+
+    '<table scope=ff"foo">':
+        '<p><table scope="foo"></p>\n',
+
+    '<table scope="foo" test="test">':
+        '<p><table scope="foo"></p>\n',
+
+    '<table scope="foo" longervalue="testing test" scope="test">':
+        '<p><table scope="foo" scope="test"></p>\n',
+
+    '<table scope=`"foo">':
+        '<p><table scope="foo"></p>\n',
+
+    '<table scope="foo bar">':
+        '<p><table scope="foo bar"></p>\n',
+
+    '<table scope=\'foo colspan="foo">':
+        '<p><table></p>\n',
+
+    '<table scope=\'foo\' colspan="foo">':
+        '<p><table scope="foo" colspan="foo"></p>\n',
+
+    '<table scope=>':
+        '<p><table></p>\n',
+
+    '<table scope= colspan="test" scope=>':
+        '<p><table colspan="test"></p>\n',
+
+    '<table colspan="\'test">':
+        '<p><table colspan="&#39;test"></p>\n',
+
+    '<table scope="foo" colspan="2">':
+        '<p><table scope="foo" colspan="2"></p>\n',
+
+    '<table scope="foo" colspan="2" ff="test">':
+        '<p><table scope="foo" colspan="2"></p>\n',
+
+    '<table ff="test" scope="foo" colspan="2" colspan=>':
+        '<p><table scope="foo" colspan="2"></p>\n',
+
+    ' <table colspan=\'\'\' a="" \' scope="foo">':
+        '<p><table scope="foo"></p>\n',
+}
+
 console.log("Running Snudown test cases.");
 var showSuccesses = false
 for (var text in cases) {
@@ -162,13 +241,34 @@ for (var text in cases) {
 	}
 }
 
+
+console.log("Running Snudown test cases for the wiki format.");
+for (var text in wiki_cases) {
+
+    var result = md_wiki.render(text);
+    if (wiki_cases[text] == result) {
+        if (showSuccesses) {
+            console.log(text);
+            console.log(wiki_cases[text]);
+            console.log(result);
+            console.log();
+        }
+    } else {
+        console.log(colors.RED, text, colors.RESET);
+        // console.log(wiki_cases[text]);
+        console.log(colors.GREEN, wiki_cases[text], colors.RESET);
+        console.log(result);
+        console.log();
+    }
+}
+
+
 try {
     var htmlutil = require('html-util');
 } catch (e) {
     console.error('Could not load module "html-util", module must be installed to run tests.');
     return 1;
 }
-
 
 console.log('Retrieving test data from /r/all');
 var http = require('http');
