@@ -19,7 +19,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-// up to date with commit 7996182be6e04fdf2b88763fa74a5e069ecabf91
+// up to date with commit 7d4802213fdcd36b03b4bbc3a27a02c4c333057f
 
 /**
 @module SnuOwnd
@@ -2024,7 +2024,7 @@
 		md.spanStack.push(link);
 
 		if ((link_len = sd_autolink__url(rewind, link, data_, offset, data.length, 0)) > 0) {
-			if (rewind.p > 0) out.s = out.s.slice(0, -rewind.p);
+			if (rewind.p > 0) out.truncate(out.s.length - rewind.p);
 			md.callbacks.autolink(out, link, MKDA_NORMAL, md.context);
 		}
 
@@ -2044,7 +2044,7 @@
 		md.spanStack.push(link);
 
 		if ((link_len = sd_autolink__email(rewind, link, data_, offset, data.length, 0)) > 0) {
-			if (rewind.p > 0) out.s = out.s.slice(0, -rewind.p);
+			if (rewind.p > 0) out.truncate(out.s.length - rewind.p);
 			md.callbacks.autolink(out, link, MKDA_EMAIL, md.context);
 		}
 
@@ -2069,7 +2069,8 @@
 			link_url.s += 'http://';
 			link_url.s += link.s;
 
-			if (rewind.p > 0) out.s = out.s.slice(0, out.s.length-rewind.p);
+			if (rewind.p > 0) out.truncate(out.s.length - rewind.p);
+			
 			if (md.callbacks.normal_text) {
 				link_text = new Buffer();
 				md.spanStack.push(link_text);
@@ -2097,11 +2098,11 @@
 		md.spanStack.push(link);
 		if ((link_len = sd_autolink__subreddit(rewind, link, data_, offset, data.length)) > 0) {
 			//don't slice because the rewind pointer will always be 0
-			if (rewind.p > 0) out.s = out.s.slice(0, -rewind.p);
+			if (rewind.p > 0) out.truncate(out.s.length - rewind.p);
 			md.callbacks.autolink(out, link, MKDA_NORMAL, md.context);
 		} else if ((link_len = sd_autolink__username(rewind, link, data_, offset, data.length)) > 0) {
 			//don't slice because the rewind pointer will always be 0
-			if (rewind.p > 0) out.s = out.s.slice(0, -rewind.p);
+			if (rewind.p > 0) out.truncate(out.s.length - rewind.p);
 			md.callbacks.autolink(out, link, MKDA_NORMAL, md.context);
 		}
 		md.spanStack.pop();
@@ -2226,10 +2227,14 @@
 	function Buffer(str) {
 		this.s = str || "";
 	};
-	// Buffer.prototype.toString = function toString() {
-		// return this.s;
-	// };
-	// Buffer.prototype.slice 
+
+	/**
+	 */
+	Buffer.prototype.truncate = function(size) {
+		if (this.s.length < size) throw new RangeError("Buffer smaller than desired size");
+		if (size < 0) throw new RangeError("Size argument is negative");
+		this.s = this.s.slice(0, size);
+	}
 
 
 	/**
