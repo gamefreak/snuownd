@@ -19,7 +19,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-// up to date with commit 62bfa4ad673c4f19683ed91c5ebb093bbe9f581d
+// up to date with commit 7996182be6e04fdf2b88763fa74a5e069ecabf91
 
 /**
 @module SnuOwnd
@@ -285,9 +285,12 @@
 			}
 
 		while (link_end > 0) {
-			if ('?!.,'.indexOf(data[link_end - 1]) != -1) link_end--;
+			var c = data[link_end - 1];
+			if (c === "\0") break;
 
-			else if (data[link_end - 1] == ';') {
+			if ("?!.,".indexOf(c) !== -1) {
+				link_end--;
+			} else if (c === ';') {
 				var new_end = link_end - 2;
 
 				while (new_end > 0 && isalpha(data[new_end])) new_end--;
@@ -519,6 +522,9 @@
 
 		for (rewind = 0; rewind < offset; ++rewind) {
 			var c = data_[offset-rewind - 1];
+
+			if (c == '\0') break;
+
 			if (isalnum(c)) continue;
 			if (".+-_".indexOf(c) != -1) continue;
 			break;
