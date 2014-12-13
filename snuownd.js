@@ -19,7 +19,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-// up to date with commit 7d4802213fdcd36b03b4bbc3a27a02c4c333057f
+// up to date with commit de32bef6032426ee1b0e3ed580127eae20eff9eb
 
 /**
 @module SnuOwnd
@@ -2195,6 +2195,7 @@
 	var MKDEXT_SPACE_HEADERS = (1 << 6);
 	var MKDEXT_SUPERSCRIPT = (1 << 7);
 	var MKDEXT_LAX_SPACING = (1 << 8)
+	var MKDEXT_NO_EMAIL_AUTOLINK = (1 << 9)
 
 	var HTML_SKIP_HTML = (1 << 0);
 	var HTML_SKIP_STYLE = (1 << 1);
@@ -2246,7 +2247,7 @@
 		//Becase javascript strings are immutable they must be wrapped with Buffer()
 		this.spanStack = [];
 		this.blockStack = [];
-		this.extensions = MKDEXT_NO_INTRA_EMPHASIS | MKDEXT_SUPERSCRIPT | MKDEXT_AUTOLINK | MKDEXT_STRIKETHROUGH | MKDEXT_TABLES;
+		this.extensions = MKDEXT_NO_INTRA_EMPHASIS | MKDEXT_SUPERSCRIPT | MKDEXT_AUTOLINK | MKDEXT_STRIKETHROUGH | MKDEXT_TABLES | MKDEXT_TABLES;
 		var renderer = getRedditRenderer();
 		this.context = renderer.context;
 		this.callbacks = renderer.callbacks;
@@ -3771,8 +3772,10 @@
 		md.activeChars['&'] = MD_CHAR_ENTITITY;
 
 		if (md.extensions & MKDEXT_AUTOLINK) {
+			if (!(md.extensions & MKDEXT_NO_EMAIL_AUTOLINK)) {
+				md.activeChars['@'] = MD_CHAR_AUTOLINK_EMAIL;
+			}
 			md.activeChars[':'] = MD_CHAR_AUTOLINK_URL;
-			md.activeChars['@'] = MD_CHAR_AUTOLINK_EMAIL;
 			md.activeChars['w'] = MD_CHAR_AUTOLINK_WWW;
 			md.activeChars['/'] = MD_CHAR_AUTOLINK_SUBREDDIT_OR_USERNAME;
 		}
@@ -3810,6 +3813,7 @@
 	exports.MKDEXT_SPACE_HEADERS = MKDEXT_SPACE_HEADERS;
 	exports.MKDEXT_SUPERSCRIPT = MKDEXT_SUPERSCRIPT;
 	exports.MKDEXT_LAX_SPACING = MKDEXT_LAX_SPACING;
+	exports.MKDEXT_NO_EMAIL_AUTOLINK = MKDEXT_NO_EMAIL_AUTOLINK;
 
 	exports['SD_AUTOLINK_SHORT_DOMAINS'] = SD_AUTOLINK_SHORT_DOMAINS;
 
