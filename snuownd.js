@@ -19,7 +19,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-// up to date with commit 61caf57e20f9427b2f1f10ebe404038026db2d82
+// up to date with commit e518f5077b072599dea87596f4ce3c1d03e443c0
 
 /**
 @module SnuOwnd
@@ -29,6 +29,8 @@
 	function isspace(c) {return /[\x09-\x0d ]/.test(c);}
 	function isalnum(c) { return /[A-Za-z0-9]/.test(c); }
 	function isalpha(c) { return /[A-Za-z]/.test(c); }
+	function isdigit(c) { return /[0-9]/.test(c); }
+	function isxdigit(c) { return /[0-9a-fA-F]/.test(c); }
 	function ispunct(c) {return /[\x20-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]/.test(c); }
 
 	function urlHexCode(number) {
@@ -110,6 +112,75 @@
 			i += 2;
 		}
 	}
+
+
+	// Parsers tend to choke on entities with values greater than this
+	var MAX_NUM_ENTITY_VAL = 0x10ffff;
+
+	function is_valid_numeric_entity(entity_val) {
+		/* Some XML parsers will choke on entities with certain
+		 * values (mostly control characters.)
+		 *
+		 * According to lxml these are all problematic:
+		 *
+		 *	[xrange(0, 8),
+		 *	 xrange(11, 12),
+		 *	 xrange(14, 31),
+		 *	 xrange(55296, 57343),
+		 *	 xrange(65534, 65535)]
+		 */
+		return (entity_val > 8
+		    && (entity_val !== 11 && entity_val > 12)
+		    && (entity_val < 14 || entity_val > 31)
+		    && (entity_val < 55296 || entity_val > 57343)
+		    && (entity_val !== 65534 && entity_val !== 65535)
+		    &&  entity_val <= MAX_NUM_ENTITY_VAL);
+	}
+	// Any numeric entity longer than this is obviously above MAX_ENTITY_CHAR
+	// used to avoid dealing with overflows.
+	var MAX_NUM_ENTITY_LEN = 7;
+	var VALID_ENTITIES = [
+		'&AElig;', '&Aacute;', '&Acirc;', '&Agrave;', '&Alpha;', '&Aring;',
+		'&Atilde;', '&Auml;', '&Beta;', '&Ccedil;', '&Chi;', '&Dagger;', '&Delta;',
+		'&ETH;', '&Eacute;', '&Ecirc;', '&Egrave;', '&Epsilon;', '&Eta;', '&Euml;',
+		'&Gamma;', '&Iacute;', '&Icirc;', '&Igrave;', '&Iota;', '&Iuml;', '&Kappa;',
+		'&Lambda;', '&Mu;', '&Ntilde;', '&Nu;', '&OElig;', '&Oacute;', '&Ocirc;',
+		'&Ograve;', '&Omega;', '&Omicron;', '&Oslash;', '&Otilde;', '&Ouml;', '&Phi;',
+		'&Pi;', '&Prime;', '&Psi;', '&Rho;', '&Scaron;', '&Sigma;', '&THORN;', '&Tau;',
+		'&Theta;', '&Uacute;', '&Ucirc;', '&Ugrave;', '&Upsilon;', '&Uuml;', '&Xi;',
+		'&Yacute;', '&Yuml;', '&Zeta;', '&aacute;', '&acirc;', '&acute;', '&aelig;',
+		'&agrave;', '&alefsym;', '&alpha;', '&amp;', '&and;', '&ang;', '&apos;',
+		'&aring;', '&asymp;', '&atilde;', '&auml;', '&bdquo;', '&beta;', '&brvbar;',
+		'&bull;', '&cap;', '&ccedil;', '&cedil;', '&cent;', '&chi;', '&circ;',
+		'&clubs;', '&cong;', '&copy;', '&crarr;', '&cup;', '&curren;', '&dArr;',
+		'&dagger;', '&darr;', '&deg;', '&delta;', '&diams;', '&divide;',
+
+		'&eacute;', '&ecirc;', '&egrave;', '&empty;', '&emsp;', '&ensp;',
+		'&epsilon;', '&equiv;', '&eta;', '&eth;', '&euml;', '&euro;', '&exist;',
+		'&fnof;', '&forall;', '&frac12;', '&frac14;', '&frac34;', '&frasl;',
+		'&gamma;','&ge;', '&gt;', '&hArr;', '&harr;', '&hearts;', '&hellip;',
+		'&iacute;', '&icirc;', '&iexcl;', '&igrave;', '&image;',
+
+		'&infin;',
+		'&int;', '&iota;', '&iquest;', '&isin;', '&iuml;', '&kappa;', '&lArr;',
+		'&lambda;', '&lang;', '&laquo;', '&larr;', '&lceil;', '&ldquo;', '&le;',
+		'&lfloor;', '&lowast;', '&loz;', '&lrm;', '&lsaquo;', '&lsquo;', '&lt;',
+		'&macr;', '&mdash;', '&micro;', '&middot;', '&minus;', '&mu;', '&nabla;',
+		'&nbsp;', '&ndash;', '&ne;', '&ni;', '&not;', '&notin;', '&nsub;', '&ntilde;',
+		'&nu;', '&oacute;', '&ocirc;', '&oelig;', '&ograve;', '&oline;', '&omega;',
+		'&omicron;', '&oplus;', '&or;', '&ordf;', '&ordm;', '&oslash;', '&otilde;',
+		'&otimes;', '&ouml;', '&para;', '&part;', '&permil;', '&perp;', '&phi;',
+		'&pi;', '&piv;', '&plusmn;', '&pound;', '&prime;', '&prod;', '&prop;',
+		'&psi;', '&quot;', '&rArr;', '&radic;', '&rang;', '&raquo;', '&rarr;',
+		'&rceil;', '&rdquo;', '&real;', '&reg;', '&rfloor;', '&rho;', '&rlm;',
+		'&rsaquo;', '&rsquo;', '&sbquo;', '&scaron;', '&sdot;', '&sect;', '&shy;',
+		'&sigma;', '&sigmaf;', '&sim;', '&spades;', '&sub;', '&sube;', '&sum;',
+		'&sup1;', '&sup2;', '&sup3;', '&sup;', '&supe;', '&szlig;', '&tau;',
+		'&there4;', '&theta;', '&thetasym;', '&thinsp;', '&thorn;', '&tilde;',
+		'&times;', '&trade;', '&uArr;', '&uacute;', '&uarr;', '&ucirc;', '&ugrave;',
+		'&uml;', '&upsih;', '&upsilon;', '&uuml;', '&weierp;', '&xi;', '&yacute;',
+'&yen;', '&yuml;', '&zeta;', '&zwj;', '&zwnj;',
+];
 
 	/**
 	 * According to the OWASP rules:
@@ -219,7 +290,8 @@
 
 		while (i < src.length) {
 			org = i;
-			while (i < src.length && HREF_SAFE[src.charCodeAt(i)] != 0) i++;
+			/* Skip by characters that don't need special processing */
+			while (i < src.length && HREF_SAFE[src.charCodeAt(i)] === 1) i++;
 
 			if (i > org) out.s += src.slice(org, i);
 
@@ -1994,18 +2066,58 @@
 
 
 	/* char_entity - '&' escaped when it doesn't belong to an entity */
-	/* valid entities are assumed to be anything matching &#?[A-Za-z0-9]+; */
+	//-/* valid entities are assumed to be anything matching &#?[A-Za-z0-9]+; */
 	function char_entity(out, md, data_, offset) {
 		var data = data_.slice(offset);
-		var end = 1;
+		var end = 1, content_start, content_end;
+		var numeric = false, hex = false, entity_base, entity_val;
 		var work = new Buffer();
 
-		if (end < data.length && data[end] == '#') end++;
+		if (end < data.length && data[end] === '#') {
+			numeric = true;
+			end++;
+		}
 
-		while (end < data.length && isalnum(data[end])) end++;
+		if (end < data.length && numeric && data[end].toLowerCase() === 'x') {
+			hex = true;
+			end++;
+		}
 
-		if (end < data.length && data[end] == ';') end++; /* real entity */
-		else return 0; /* lone '&' */
+		content_start = end;
+		while (end < data.length) {
+			var c = data[end];
+			if (hex) {
+				if (!isxdigit(c)) break;
+			} else if (numeric) {
+				if (!isdigit(c)) break;
+			} else if (!isalnum(c)) {
+				break;
+			}
+			end++;
+		}
+
+
+		if (end > content_start && end < data.length && data[end] === ';') {
+			/* well formed entity */
+			end++;
+		} else {
+			return 0; /* not an entity */
+		}
+
+		/* way too long to be a valid numeric entity */
+		if (numeric && content_end - content_start > MAX_NUM_ENTITY_LEN) {
+			return 0;
+		}
+
+		/* Validate the entity's contents */
+		if (numeric) {
+			if (hex) entity_base = 16;
+			else entity_base = 10;
+			entity_val = parseInt(data.slice(content_start), entity_base);
+			if (!is_valid_numeric_entity(entity_val)) return 0;
+		} else {
+			if (VALID_ENTITIES.indexOf(data.slice(0, end)) === -1) return 0;
+		}
 
 		if (md.callbacks.entity) {
 			work.s = data.slice(0, end);

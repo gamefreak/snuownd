@@ -1,4 +1,5 @@
 #! /usr/local/bin/node
+// "use strict";
 
 var snuownd = require('./snuownd');
 var md = snuownd.getParser();
@@ -34,6 +35,9 @@ cases = {
     '': '',
     'http://www.reddit.com':
         '<p><a href="http://www.reddit.com">http://www.reddit.com</a></p>\n',
+
+    'http://www.reddit.com/a\x00b':
+        '<p><a href="http://www.reddit.com/ab">http://www.reddit.com/ab</a></p>\n',
 
     '[foo](http://en.wikipedia.org/wiki/Link_(film\\))':
         '<p><a href="http://en.wikipedia.org/wiki/Link_(film)">foo</a></p>\n',
@@ -154,6 +158,20 @@ cases = {
 
     '/r/t:heatdeathoftheuniverse':
         '<p><a href="/r/t:heatdeathoftheuniverse">/r/t:heatdeathoftheuniverse</a></p>\n',
+
+    '&thetasym;': '<p>&thetasym;</p>\n',
+    '&foobar;': '<p>&amp;foobar;</p>\n',
+    '&nbsp': '<p>&amp;nbsp</p>\n',
+    '&#foobar;': '<p>&amp;#foobar;</p>\n',
+    '&#xfoobar;': '<p>&amp;#xfoobar;</p>\n',
+    '&#9999999999;': '<p>&amp;#9999999999;</p>\n',
+    '&#99;': '<p>&#99;</p>\n',
+    '&#X7E;': '<p>&#X7E;</p>\n',
+    '&frac12;': '<p>&frac12;</p>\n',
+    '&': '<p>&amp;</p>\n',
+    '&;': '<p>&amp;;</p>\n',
+    '&#;': '<p>&amp;#;</p>\n',
+    '&#x;': '<p>&amp;#x;</p>\n',
 }
 
 function repeat(str, n) {
@@ -170,6 +188,35 @@ cases[repeat('|', 2) + '\n' + repeat('-|', 2) + '\n|\n'] = '<table><thead>\n<tr>
 cases[repeat('|', 65) + '\n' + repeat('-|', 65) + '\n|\n'] = '<table><thead>\n<tr>\n' + repeat('<th></th>\n', 64) + '</tr>\n</thead><tbody>\n<tr>\n<td colspan="64" ></td>\n</tr>\n</tbody></table>\n';
 
 cases[repeat('|', 66) + '\n' + repeat('-|', 66) + '\n|\n'] = '<p>' + repeat('|', 66) + '\n' + repeat('-|', 66) + '\n|' + '</p>\n';
+
+
+function *range(from ,to) {
+    for (var i = from; i < to; i++) yield i;
+}
+// Test that every illegal numeric entity is encoded as it should be.
+var ILLEGAL_NUMERIC_ENT_RANGES = [
+    range(0, 9),
+    range(11, 13),
+    range(14, 32),
+    range(55296, 57344),
+    range(65534, 65536),
+]
+
+var invalid_ent_test_key = '';
+var invalid_ent_test_val = '';
+for (var r of ILLEGAL_NUMERIC_ENT_RANGES.values()) {
+    for (var i of r) {
+        invalid_ent_test_key += '&#' + i + ';';
+        invalid_ent_test_val += '&amp;#' + i + ';';
+    }
+}
+// for i in itertools.chain(*ILLEGAL_NUMERIC_ENT_RANGES):
+
+cases[invalid_ent_test_key] = '<p>' + invalid_ent_test_val + '</p>\n';
+
+
+
+
 
 
 wiki_cases = {
