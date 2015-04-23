@@ -156,6 +156,22 @@ cases = {
         '<p><a href="/r/t:heatdeathoftheuniverse">/r/t:heatdeathoftheuniverse</a></p>\n',
 }
 
+function repeat(str, n) {
+    var out = '';
+    for (var i = 0; i < n; i++) {
+        out += str;
+    }
+}
+
+cases[repeat('|', 5) + '\n' + repeat('-|', 5) + '\n|\n'] = '<table><thead>\n<tr>\n' + repeat('<th></th>\n', 4) + '</tr>\n</thead><tbody>\n<tr>\n<td colspan="4" ></td>\n</tr>\n</tbody></table>\n';
+
+cases[repeat('|', 2) + '\n' + repeat('-|', 2) + '\n|\n'] = '<table><thead>\n<tr>\n' + repeat('<th></th>\n', 1) + '</tr>\n</thead><tbody>\n<tr>\n<td></td>\n</tr>\n</tbody></table>\n';
+
+cases[repeat('|', 65) + '\n' + repeat('-|', 65) + '\n|\n'] = '<table><thead>\n<tr>\n' + repeat('<th></th>\n', 64) + '</tr>\n</thead><tbody>\n<tr>\n<td colspan="64" ></td>\n</tr>\n</tbody></table>\n';
+
+cases[repeat('|', 66) + '\n' + repeat('-|', 66) + '\n|\n'] = '<p>' + repeat('|', 66) + '\n' + repeat('-|', 66) + '\n|' + '</p>\n';
+
+
 wiki_cases = {
     '<table scope="foo"bar>':
         '<p><table scope="foo"></p>\n',
@@ -220,6 +236,8 @@ wiki_cases = {
     ' <table colspan=\'\'\' a="" \' scope="foo">':
         '<p><table scope="foo"></p>\n',
 }
+
+
 
 console.log("Running Snudown test cases.");
 var showSuccesses = false

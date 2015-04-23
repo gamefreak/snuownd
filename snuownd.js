@@ -19,7 +19,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-// up to date with commit de32bef6032426ee1b0e3ed580127eae20eff9eb
+// up to date with commit 61caf57e20f9427b2f1f10ebe404038026db2d82
 
 /**
 @module SnuOwnd
@@ -1233,13 +1233,16 @@
 	}
 
 	// void (*table_cell)(struct buf *ob, const struct buf *text, int flags, void *opaque);
-	function cb_table_cell(out, text, flags, options) {
+	function cb_table_cell(out, text, flags, options, col_span) {
 		if (flags & MKD_TABLE_HEADER) {
 			out.s += '<th';
 		} else {
 			out.s += '<td';
 		}
 
+		if (col_span > 1) {
+			out.s += " colspan=\"" + col_span + "\" ";
+		}
 		switch (flags & MKD_TABLE_ALIGNMASK) {
 			case MKD_TABLE_ALIGN_CENTER:
 				out.s += ' align="center">';
@@ -2255,6 +2258,7 @@
 		this.activeChars = {};
 		this.refs = {};
 		this.nestingLimit = 16;
+		this.maxTableCols = 64;
 	};
 
 
@@ -3363,7 +3367,7 @@
 	}
 
 	function parse_table_row(out, md, data, columns, header_flag) {
-		var i = 0, col;
+		var i = 0, col, cols_left;
 		var row_work = null;
 
 		if (!md.callbacks.table_cell || !md.callbacks.table_row) return;
@@ -3390,15 +3394,17 @@
 
 			// parse_inline(cell_work, rndr, data + cell_start, 1 + cell_end - cell_start);
 			parse_inline(cell_work, md, data.slice(cell_start, 1 + cell_end));
-			md.callbacks.table_cell(row_work, cell_work, columns[col] | header_flag, md.context);
+			md.callbacks.table_cell(row_work, cell_work, columns[col] | header_flag, md.context, 0);
 
 			md.spanStack.pop();
 			i++;
 		}
 
-		for (; col < columns.length; ++col) {
+		cols_left = columns.length - col;
+		// for (; col < columns.length; ++col) {
+		if (cols_left > 0) {
 			var empty_cell = null;
-			md.callbacks.table_cell(row_work, empty_cell, columns[col] | header_flag, md.context);
+			md.callbacks.table_cell(row_work, empty_cell, columns[col] | header_flag, md.context, cols_left);
 		}
 
 		md.callbacks.table_row(out, row_work, md.context);
@@ -3424,6 +3430,7 @@
 
 		if (header_end && data[header_end - 1] == '|') pipes--;
 
+		if (pipes + 1 > md.maxTableCols) return 0;
 		//	columns.p = pipes + 1;
 		//	column_data.p = new Array(columns.p);
 		columns.p = new Array(pipes + 1);
@@ -3749,13 +3756,15 @@
 	@param {?Number=} nestingLimit The maximum depth to which inline elements can be nested.
 	@return {Markdown} A configured markdown object.
 	*/
-	exports.getParser = function getParser(renderer, extensions, nestingLimit) {
+	exports.getParser = function getParser(renderer, extensions, nestingLimit, columnLimit) {
 		var md = new Markdown();
 		if (renderer) md.callbacks = renderer.callbacks;
 		if (nestingLimit) md.nestingLimit = nestingLimit;
+		if (nestingLimit) md.maxTableCols = columnLimit;
 		if (renderer) md.context = renderer.context;
 		if (extensions != undefined && extensions != null) md.extensions = extensions;
 
+		// if (!(nestingLimit > 0 && columnLimit > 0 && callbacks)) throw new Error;
 		var cb = md.callbacks;
 		if (cb.emphasis || cb.double_emphasis || cb.triple_emphasis) {
 			md.activeChars['*'] = MD_CHAR_EMPHASIS;
