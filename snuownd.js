@@ -346,7 +346,8 @@
 
 
 	// function autolink_delim(uint8_t *data, size_t link_end, size_t offset, size_t size)
-	function autolink_delim(data, link_end) {
+	function autolink_delim(data_, link_end, offset, size) {
+		var data = data_.slice(offset)
 		var cclose, copen = 0;
 		var i;
 
@@ -485,7 +486,7 @@
 		link_end += domain_len;
 		while (link_end < size && !isspace(data_[offset+link_end])) link_end++;
 
-		link_end = autolink_delim(data, link_end);
+		link_end = autolink_delim(data_, link_end, offset, size);
 
 		if (link_end == 0) return 0;
 
@@ -617,7 +618,7 @@
 		if (link_end < 2 || nb != 1 || np == 0) return 0;
 
 		//TODO
-		link_end = autolink_delim(data, link_end);
+		link_end = autolink_delim(data_, link_end, offset, size);
 
 		if (link_end == 0) return 0;
 
@@ -645,7 +646,7 @@
 
 		while (link_end < size && !isspace(data[link_end])) link_end++;
 
-		link_end = autolink_delim(data, link_end);
+		link_end = autolink_delim(data_, link_end, offset, size);
 
 		if (link_end == 0) return 0;
 
