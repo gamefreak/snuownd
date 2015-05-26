@@ -156,6 +156,12 @@ cases = {
     '/r/very+clever+multireddit+reddit.com+t:fork+yay':
         '<p><a href="/r/very+clever+multireddit+reddit.com+t:fork+yay">/r/very+clever+multireddit+reddit.com+t:fork+yay</a></p>\n',
 
+    '/r/all-minus-something':
+        '<p><a href="/r/all-minus-something">/r/all-minus-something</a></p>\n',
+
+    '/r/notall-minus':
+        '<p><a href="/r/notall">/r/notall</a>-minus</p>\n',
+
     '/r/t:heatdeathoftheuniverse':
         '<p><a href="/r/t:heatdeathoftheuniverse">/r/t:heatdeathoftheuniverse</a></p>\n',
 

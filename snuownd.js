@@ -508,7 +508,7 @@
 		if (data.indexOf('/r/') != 0) return 0;
 
 		link_end = "/r/".length;
-		if (data.substr(link_end-1, 4).toLowerCase() == "all-") {
+		if (data.substr(link_end, 4).toLowerCase() == "all-") {
 			allMinus = true;
 		}
 		do {
