@@ -210,7 +210,7 @@ var ILLEGAL_NUMERIC_ENT_RANGES = [
 
 var invalid_ent_test_key = '';
 var invalid_ent_test_val = '';
-for (var r of ILLEGAL_NUMERIC_ENT_RANGES.values()) {
+for (var r of ILLEGAL_NUMERIC_ENT_RANGES) {
     for (var i of r) {
         invalid_ent_test_key += '&#' + i + ';';
         invalid_ent_test_val += '&amp;#' + i + ';';
