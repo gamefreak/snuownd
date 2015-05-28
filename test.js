@@ -165,6 +165,85 @@ cases = {
     '/r/t:heatdeathoftheuniverse':
         '<p><a href="/r/t:heatdeathoftheuniverse">/r/t:heatdeathoftheuniverse</a></p>\n',
 
+    'a /u/reddit':
+        '<p>a <a href="/u/reddit">/u/reddit</a></p>\n',
+
+    'u/reddit':
+        '<p><a href="/u/reddit">u/reddit</a></p>\n',
+
+    'a u/reddit':
+        '<p>a <a href="/u/reddit">u/reddit</a></p>\n',
+
+    'a u/reddit/foobaz':
+        '<p>a <a href="/u/reddit/foobaz">u/reddit/foobaz</a></p>\n',
+
+    'foo:u/reddit':
+        '<p>foo:<a href="/u/reddit">u/reddit</a></p>\n',
+
+    'fuu/reddit':
+        '<p>fuu/reddit</p>\n',
+
+    // Don't treat unicode punctuation as a word boundary for now
+    'a。u/reddit':
+        '<p>a。u/reddit</p>\n',
+
+    '\\/u/me':
+        '<p>/u/me</p>\n',
+
+    '\\\\/u/me':
+        '<p>\\<a href="/u/me">/u/me</a></p>\n',
+
+    '\\u/me':
+        '<p>\\<a href="/u/me">u/me</a></p>\n',
+
+    '\\\\u/me':
+        '<p>\\<a href="/u/me">u/me</a></p>\n',
+
+    'u\\/me':
+        '<p>u/me</p>\n',
+
+    '*u/me*':
+        '<p><em><a href="/u/me">u/me</a></em></p>\n',
+
+    'foo^u/me':
+        '<p>foo<sup><a href="/u/me">u/me</a></sup></p>\n',
+
+    '*foo*u/me':
+        '<p><em>foo</em><a href="/u/me">u/me</a></p>\n',
+
+    'u/me':
+        '<p><a href="/u/me">u/me</a></p>\n',
+
+    '/u/me':
+        '<p><a href="/u/me">/u/me</a></p>\n',
+
+    'u/m':
+        '<p>u/m</p>\n',
+
+    '/u/m':
+        '<p>/u/m</p>\n',
+
+    '/f/oobar':
+        '<p>/f/oobar</p>\n',
+
+    'f/oobar':
+        '<p>f/oobar</p>\n',
+
+    'a /r/reddit.com':
+        '<p>a <a href="/r/reddit.com">/r/reddit.com</a></p>\n',
+
+    'a r/reddit.com':
+        '<p>a <a href="/r/reddit.com">r/reddit.com</a></p>\n',
+
+    'foo:r/reddit.com':
+        '<p>foo:<a href="/r/reddit.com">r/reddit.com</a></p>\n',
+
+    'foobar/reddit.com':
+        '<p>foobar/reddit.com</p>\n',
+
+    'a。r/reddit.com':
+        '<p>a。r/reddit.com</p>\n',
+
     '&thetasym;': '<p>&thetasym;</p>\n',
     '&foobar;': '<p>&amp;foobar;</p>\n',
     '&nbsp': '<p>&amp;nbsp</p>\n',
