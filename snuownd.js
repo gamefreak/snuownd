@@ -474,7 +474,7 @@
 
 		if (size < 4 || data_[offset+1] != '/' || data_[offset+2] != '/') return 0;
 
-		while (rewind < offset && isalpha(data_[offset-rewind - 1])) rewind++;
+		while (rewind < max_rewind && isalpha(data_[offset-rewind - 1])) rewind++;
 
 		if (!sd_autolink_issafe(data_.substr(offset-rewind, size+rewind))) return 0;
 		link_end = "://".length;
@@ -643,7 +643,7 @@
 		var link_end, rewind;
 		var nb = 0, np = 0;
 
-		for (rewind = 0; rewind < offset; ++rewind) {
+		for (rewind = 0; rewind < max_rewind; ++rewind) {
 			var c = data_[offset-rewind - 1];
 
 			if (c == '\0') break;
@@ -683,7 +683,7 @@
 		var data = data_.slice(offset);
 		var link_end;
 
-		if (offset > 0 && !ispunct(data_[offset-1]) && !isspace(data_[offset-1]))
+		if (max_rewind > 0 && !ispunct(data_[offset-1]) && !isspace(data_[offset-1]))
 			return 0;
 
 		// if (size < 4 || memcmp(data, "www.", strlen("www.")) != 0)
@@ -1826,7 +1826,7 @@
 	/* char_linebreak - '\n' preceded by two spaces (assuming linebreak != 0) */
 	function char_linebreak(out, md, data_, offset, max_rewind) {
 		var data = data_.slice(offset);
-		if (offset < 2 || data_[offset-1] != ' ' || data_[offset-2] != ' ')
+		if (max_rewind < 2 || data_[offset-1] != ' ' || data_[offset-2] != ' ')
 			return 0;
 
 		/* removing the last space from ob and rendering */
@@ -1840,7 +1840,7 @@
 	/* char_link - '[': parsing a link or an image */
 	function char_link(out, md, data_, offset, max_rewind) {
 		var data = data_.slice(offset);
-		var is_img = (offset && data_[offset - 1] == '!'), level;
+		var is_img = (max_rewind && data_[offset - 1] == '!'), level;
 		var i = 1, txt_e, link_b = 0, link_e = 0, title_b = 0, title_e = 0;
 		//4 bufs
 		var content = null;
