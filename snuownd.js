@@ -130,7 +130,7 @@
 		 *	 xrange(65534, 65535)]
 		 */
 		return (entity_val > 8
-		    && (entity_val !== 11 && entity_val > 12)
+		    && (entity_val !== 11 && entity_val !== 12)
 		    && (entity_val < 14 || entity_val > 31)
 		    && (entity_val < 55296 || entity_val > 57343)
 		    && (entity_val !== 65534 && entity_val !== 65535)
