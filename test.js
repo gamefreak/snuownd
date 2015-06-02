@@ -156,8 +156,123 @@ cases = {
     '/r/very+clever+multireddit+reddit.com+t:fork+yay':
         '<p><a href="/r/very+clever+multireddit+reddit.com+t:fork+yay">/r/very+clever+multireddit+reddit.com+t:fork+yay</a></p>\n',
 
+    '/r/all-minus-something':
+        '<p><a href="/r/all-minus-something">/r/all-minus-something</a></p>\n',
+
+    '/r/notall-minus':
+        '<p><a href="/r/notall">/r/notall</a>-minus</p>\n',
+
     '/r/t:heatdeathoftheuniverse':
         '<p><a href="/r/t:heatdeathoftheuniverse">/r/t:heatdeathoftheuniverse</a></p>\n',
+
+    'a /u/reddit':
+        '<p>a <a href="/u/reddit">/u/reddit</a></p>\n',
+
+    'u/reddit':
+        '<p><a href="/u/reddit">u/reddit</a></p>\n',
+
+    'a u/reddit':
+        '<p>a <a href="/u/reddit">u/reddit</a></p>\n',
+
+    'a u/reddit/foobaz':
+        '<p>a <a href="/u/reddit/foobaz">u/reddit/foobaz</a></p>\n',
+
+    'foo:u/reddit':
+        '<p>foo:<a href="/u/reddit">u/reddit</a></p>\n',
+
+    'fuu/reddit':
+        '<p>fuu/reddit</p>\n',
+
+    // Don't treat unicode punctuation as a word boundary for now
+    'a。u/reddit':
+        '<p>a。u/reddit</p>\n',
+
+    '\\/u/me':
+        '<p>/u/me</p>\n',
+
+    '\\\\/u/me':
+        '<p>\\<a href="/u/me">/u/me</a></p>\n',
+
+    '\\u/me':
+        '<p>\\<a href="/u/me">u/me</a></p>\n',
+
+    '\\\\u/me':
+        '<p>\\<a href="/u/me">u/me</a></p>\n',
+
+    'u\\/me':
+        '<p>u/me</p>\n',
+
+    '*u/me*':
+        '<p><em><a href="/u/me">u/me</a></em></p>\n',
+
+    'foo^u/me':
+        '<p>foo<sup><a href="/u/me">u/me</a></sup></p>\n',
+
+    '*foo*u/me':
+        '<p><em>foo</em><a href="/u/me">u/me</a></p>\n',
+
+    'u/me':
+        '<p><a href="/u/me">u/me</a></p>\n',
+
+    '/u/me':
+        '<p><a href="/u/me">/u/me</a></p>\n',
+
+    'u/m':
+        '<p>u/m</p>\n',
+
+    '/u/m':
+        '<p>/u/m</p>\n',
+
+    '/f/oobar':
+        '<p>/f/oobar</p>\n',
+
+    'f/oobar':
+        '<p>f/oobar</p>\n',
+
+    'a /r/reddit.com':
+        '<p>a <a href="/r/reddit.com">/r/reddit.com</a></p>\n',
+
+    'a r/reddit.com':
+        '<p>a <a href="/r/reddit.com">r/reddit.com</a></p>\n',
+
+    'foo:r/reddit.com':
+        '<p>foo:<a href="/r/reddit.com">r/reddit.com</a></p>\n',
+
+    'foobar/reddit.com':
+        '<p>foobar/reddit.com</p>\n',
+
+    'a。r/reddit.com':
+        '<p>a。r/reddit.com</p>\n',
+
+    '/R/reddit.com':
+        '<p>/R/reddit.com</p>\n',
+
+    '/r/irc://foo.bar/':
+        '<p><a href="/r/irc">/r/irc</a>://foo.bar/</p>\n',
+
+    '/r/t:irc//foo.bar/':
+        '<p><a href="/r/t:irc//foo">/r/t:irc//foo</a>.bar/</p>\n',
+
+    '/r/all-irc://foo.bar/':
+        '<p><a href="/r/all-irc">/r/all-irc</a>://foo.bar/</p>\n',
+
+    '/r/foo+irc://foo.bar/':
+        '<p><a href="/r/foo+irc">/r/foo+irc</a>://foo.bar/</p>\n',
+
+    '/r/www.example.com':
+        '<p><a href="/r/www">/r/www</a>.example.com</p>\n',
+
+    '.http://reddit.com':
+        '<p>.<a href="http://reddit.com">http://reddit.com</a></p>\n',
+
+    '[r://<http://reddit.com/>](/aa)':
+        '<p><a href="/aa">r://<a href="http://reddit.com/">http://reddit.com/</a></a></p>\n',
+
+    '/u/http://www.reddit.com/user/reddit':
+        '<p><a href="/u/http">/u/http</a>://<a href="http://www.reddit.com/user/reddit">www.reddit.com/user/reddit</a></p>\n',
+
+    'www.http://example.com/':
+        '<p><a href="http://www.http://example.com/">www.http://example.com/</a></p>\n',
 
     '&thetasym;': '<p>&thetasym;</p>\n',
     '&foobar;': '<p>&amp;foobar;</p>\n',
@@ -204,7 +319,7 @@ var ILLEGAL_NUMERIC_ENT_RANGES = [
 
 var invalid_ent_test_key = '';
 var invalid_ent_test_val = '';
-for (var r of ILLEGAL_NUMERIC_ENT_RANGES.values()) {
+for (var r of ILLEGAL_NUMERIC_ENT_RANGES) {
     for (var i of r) {
         invalid_ent_test_key += '&#' + i + ';';
         invalid_ent_test_val += '&amp;#' + i + ';';

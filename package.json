@@ -1,6 +1,6 @@
 {
   "name": "snuownd",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "JavaScript port of Reddit's SnuDown Markdown parser.",
   "author": "Scott McClaugherty <scott.h.mcc@gmail.com>",
   "homepage": "http//github.com/gamefreak/snuownd",
