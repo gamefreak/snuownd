@@ -1,0 +1,10 @@
+{
+  "name": "snuownd",
+  "version": "1.1.0",
+  "authors": [
+    "Scott McClaugherty <gamefreak4321@gmail.com>"
+  ],
+  "description": "Javascript port of Reddit's \"SnuDown\" markdown parser.",
+  "main": "snuownd.js",
+  "keywords": ["snuownd", "snudown", "markdown", "reddit"]
+}
